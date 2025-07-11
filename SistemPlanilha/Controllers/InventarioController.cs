@@ -255,7 +255,7 @@ namespace SistemPlanilha.Controllers
 
         private async Task<string> RenderViewToStringAsync(string viewName, object model)
         {
-            // Seu método de renderização está ótimo e foi mantido.
+           
             if (string.IsNullOrEmpty(viewName))
                 viewName = ControllerContext.ActionDescriptor.ActionName;
 
