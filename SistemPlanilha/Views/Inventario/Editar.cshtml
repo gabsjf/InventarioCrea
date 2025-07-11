@@ -1,0 +1,116 @@
+﻿@model SistemPlanilha.ViewModels.InventarioFormViewModel
+
+@{
+    ViewData["Title"] = "Editar item";
+}
+
+<h1 class="display-4">Editar item</h1>
+<hr />
+
+<form asp-controller="Inventario" asp-action="Editar" method="post">
+   
+    <input type="hidden" asp-for="Id" />
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="row g-3">
+        <div class="col-md-6">
+            
+            <label asp-for="PcName" class="form-label"></label>
+            <input asp-for="PcName" class="form-control" />
+            <span asp-validation-for="PcName" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Serial" class="form-label"></label>
+            <input asp-for="Serial" class="form-control" />
+            <span asp-validation-for="Serial" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Patrimonio" class="form-label"></label>
+            <input asp-for="Patrimonio" class="form-control" />
+            <span asp-validation-for="Patrimonio" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="SetorId" class="form-label"></label>
+           
+            <select asp-for="SetorId" class="form-select" asp-items="Model.Setores">
+                <option value="">Selecione o setor</option>
+            </select>
+            <span asp-validation-for="SetorId" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Usuario" class="form-label"></label>
+            <input asp-for="Usuario" class="form-control" />
+            <span asp-validation-for="Usuario" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Responsavel" class="form-label"></label>
+            <input asp-for="Responsavel" class="form-control" />
+            <span asp-validation-for="Responsavel" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="TipoId" class="form-label"></label>
+            <select asp-for="TipoId" class="form-select" asp-items="Model.Tipos">
+                <option value="">Selecione o tipo</option>
+            </select>
+            <span asp-validation-for="TipoId" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Modelo" class="form-label"></label>
+            <input asp-for="Modelo" class="form-control" />
+            <span asp-validation-for="Modelo" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="SituacaoId" class="form-label"></label>
+            <select asp-for="SituacaoId" class="form-select" asp-items="Model.Situacoes">
+                <option value="">Selecione a situação</option>
+            </select>
+            <span asp-validation-for="SituacaoId" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Processador" class="form-label"></label>
+            <input asp-for="Processador" class="form-control" />
+            <span asp-validation-for="Processador" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Ssd" class="form-label">SSD</label>
+            <input asp-for="Ssd" class="form-control" />
+            <span asp-validation-for="Ssd" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="WinVerId" class="form-label"></label>
+            <select asp-for="WinVerId" class="form-select" asp-items="Model.WinVers">
+                <option value="">Selecione a versão</option>
+            </select>
+            <span asp-validation-for="WinVerId" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="OfficeId" class="form-label"></label>
+            <select asp-for="OfficeId" class="form-select" asp-items="Model.Offices">
+                <option value="">Selecione a versão</option>
+            </select>
+            <span asp-validation-for="OfficeId" class="text-danger"></span>
+        </div>
+        <div class="col-md-12">
+            <label asp-for="Obs" class="form-label"></label>
+            <textarea asp-for="Obs" class="form-control" rows="3"></textarea>
+            <span asp-validation-for="Obs" class="text-danger"></span>
+        </div>
+        <div class="col-md-6 align-self-center">
+            <div class="form-check mt-3">
+                <input class="form-check-input" asp-for="LicencaSO" />
+                <label class="form-check-label" asp-for="LicencaSO"></label>
+            </div>
+        </div>
+        <div class="col-md-6 align-self-center">
+            <div class="form-check mt-3">
+                <input class="form-check-input" asp-for="LicencaOffice" />
+                <label class="form-check-label" asp-for="LicencaOffice"></label>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+        <a class="btn btn-secondary" asp-controller="Inventario" asp-action="Index">Voltar</a>
+    </div>
+</form>

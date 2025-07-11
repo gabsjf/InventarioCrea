@@ -1,0 +1,42 @@
+﻿@model List<SistemPlanilha.Models.InventarioModel>
+
+@if (Model != null && Model.Any())
+{
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td class="text-center">@item.Id</td>
+            <td>@item.PcName</td>
+            <td>@item.Serial</td>
+            <td class="text-center">@item.Patrimonio</td>
+            <td>@item.Setor?.Nome</td>
+            <td>@item.Usuario</td>
+            <td>@item.Tipo?.Nome</td>
+            <td>@item.Modelo</td>
+            <td>@item.Situacao?.Nome</td>
+            <td>@item.Responsavel</td>
+            <td class="text-center">@(item.LicencaSO ? "Sim" : "Não")</td>
+            <td>@item.WinVer?.Nome</td>
+            <td>@item.Office?.Nome</td>
+            <td class="text-center">@(item.LicencaOffice ? "Sim" : "Não")</td>
+            <td>@item.Processador</td>
+            <td>@item.Ssd</td>
+            <td class="text-truncate" style="max-width: 150px;" title="@item.Obs">
+                @item.Obs
+            </td>
+            <td class="text-center">
+                <div class="btn-group btn-group-sm" role="group">
+                    <a asp-controller="Inventario" asp-action="Editar" asp-route-id="@item.Id" class="btn btn-warning" title="Editar">✏️</a>
+                    <a asp-controller="Inventario" asp-action="Apagar" asp-route-id="@item.Id" class="btn btn-danger" title="Apagar">🗑️</a>
+                    <a asp-controller="RelatorioModels" asp-action="Create" asp-route-inventarioId="@item.Id" class="btn btn-primary" title="Novo Relatório">📋</a>
+                </div>
+            </td>
+        </tr>
+    }
+}
+else
+{
+    <tr>
+        <td colspan="18" class="text-center text-muted py-4">Nenhum item encontrado com os filtros atuais.</td>
+    </tr>
+}

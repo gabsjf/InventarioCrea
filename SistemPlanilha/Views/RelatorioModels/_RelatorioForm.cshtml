@@ -1,0 +1,28 @@
+﻿@model SistemPlanilha.ViewModels.RelatorioFormViewModel
+
+<form asp-action="@(Model.Relatorio.Id > 0 ? "Edit" : "Create")" method="post">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+    <input type="hidden" asp-for="Relatorio.Id" />
+
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label asp-for="Relatorio.InventarioId" class="form-label"></label>
+            <select asp-for="Relatorio.InventarioId" class="form-select" asp-items="Model.InventarioItens"></select>
+            <span asp-validation-for="Relatorio.InventarioId" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Relatorio.Descricao" class="form-label">Descrição do Problema</label>
+            <input asp-for="Relatorio.Descricao" class="form-control" />
+            <span asp-validation-for="Relatorio.Descricao" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Relatorio.StatusManutencaoId" class="form-label">Status da Manutenção</label>
+            <select asp-for="Relatorio.StatusManutencaoId" class="form-select" asp-items="Model.StatusesManutencao">
+                <option value="">Selecione o status</option>
+            </select>
+        </div>
+    </div>
+
+    @* Os botões de submit ficarão nas views principais (Create.cshtml e Edit.cshtml) *@
+</form>

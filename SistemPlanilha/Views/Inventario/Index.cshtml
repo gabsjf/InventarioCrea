@@ -1,0 +1,177 @@
+﻿@model SistemPlanilha.ViewModels.InventarioIndexViewModel
+
+@{
+    ViewData["Title"] = "Inventário de Itens";
+}
+
+<h1 class="display-4 mb-4">Listagem dos Itens</h1>
+
+<div class="text-center mb-3">
+    <a class="btn btn-success" role="button" asp-controller="Inventario" asp-action="Criar">
+        ➕ Adicionar novo item
+    </a>
+</div>
+
+<form asp-action="Index" method="get" class="card card-body mb-4" id="form-filtros">
+    <div class="row g-3 align-items-end">
+        <div class="col-md-12">
+            <label for="termo" class="form-label fw-bold">Busca Rápida</label>
+            <input type="text" id="termo" name="termo" class="form-control" placeholder="Buscar por nome, serial, modelo..." value="@Model.TermoAtual" />
+        </div>
+        <div class="col-md-3">
+            <label asp-for="SetorId" class="form-label">Setor</label>
+            <select asp-for="SetorId" class="form-select" asp-items="Model.Setores">
+                <option value="">Todos</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label asp-for="TipoId" class="form-label">Tipo</label>
+            <select asp-for="TipoId" class="form-select" asp-items="Model.Tipos">
+                <option value="">Todos</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label asp-for="WinVerId" class="form-label">Versão do Windows</label>
+            <select asp-for="WinVerId" class="form-select" asp-items="Model.WinVers">
+                <option value="">Todas</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label asp-for="OfficeId" class="form-label">Versão do Office</label>
+            <select asp-for="OfficeId" class="form-select" asp-items="Model.Offices">
+                <option value="">Todas</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label asp-for="FiltroSO" class="form-label">Windows Ativo?</label>
+            <select asp-for="FiltroSO" class="form-select">
+                <option value="todos">Todos</option>
+                <option value="sim">Sim</option>
+                <option value="nao">Não</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label asp-for="FiltroOffice" class="form-label">Office Ativo?</label>
+            <select asp-for="FiltroOffice" class="form-select">
+                <option value="todos">Todos</option>
+                <option value="sim">Sim</option>
+                <option value="nao">Não</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label for="pageSize" class="form-label">Itens por página</label>
+            <select id="pageSize" name="pageSize" class="form-select">
+                <option value="10" selected="@(Model.PageSize == 10)">10</option>
+                <option value="50" selected="@(Model.PageSize == 50)">50</option>
+                <option value="100" selected="@(Model.PageSize == 100)">100</option>
+            </select>
+        </div>
+    </div>
+</form>
+
+<div class="table-responsive">
+    <table class="table table-striped table-bordered align-middle">
+        <thead class="table-dark text-center">
+            <tr>
+                <th>ID</th>
+                <th>Nome do PC</th>
+                <th>Serial</th>
+                <th>Patrimônio</th>
+                <th>Setor</th>
+                <th>Usuário</th>
+                <th>Tipo</th>
+                <th>Modelo</th>
+                <th>Situação</th>
+                <th>Responsável</th>
+                <th>Licença SO</th>
+                <th>Windows</th>
+                <th>Office</th>
+                <th>Licença Office</th>
+                <th>Processador</th>
+                <th>SSD</th>
+                <th>Obs</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody id="tabela-inventario-body">
+            <!-- preenchido por AJAX -->
+        </tbody>
+    </table>
+</div>
+
+<div id="paginacao-container" class="mt-3"></div>
+
+@section Scripts {
+    <script>
+        function renderPagination(currentPage, totalPages) {
+            if (totalPages <= 1) return "";
+            var html = '<ul class="pagination justify-content-center">';
+            html += '<li class="page-item ' + (currentPage === 1 ? 'disabled' : '') + '">';
+            html += '<a href="#" class="page-link" data-page="' + (currentPage - 1) + '">&laquo; Anterior</a></li>';
+
+            var start = Math.max(1, currentPage - 2);
+            var end = Math.min(totalPages, start + 4);
+            if (end - start < 4) start = Math.max(1, end - 4);
+
+            for (var i = start; i <= end; i++) {
+                html += '<li class="page-item ' + (i === currentPage ? 'active' : '') + '">';
+                html += '<a href="#" class="page-link" data-page="' + i + '">' + i + '</a></li>';
+            }
+
+            html += '<li class="page-item ' + (currentPage === totalPages ? 'disabled' : '') + '">';
+            html += '<a href="#" class="page-link" data-page="' + (currentPage + 1) + '">Próximo &raquo;</a></li>';
+            html += '</ul>';
+            return html;
+        }
+
+        $(document).ready(function () {
+            function atualizarConteudo(pageNumber) {
+                var formData = $('#form-filtros').serialize().replace(/&?page=\d+/g, '') + '&page=' + pageNumber;
+                $('#tabela-inventario-body').html('<tr><td colspan="18" class="text-center"><div class="spinner-border" role="status"></div></td></tr>');
+                $('#paginacao-container').html('');
+
+                $.ajax({
+                    url: '@Url.Action("BuscarInventario")',
+                    type: 'GET',
+                    data: formData,
+                    success: function (response) {
+                        $('#tabela-inventario-body').html(response.tabelaHtml);
+
+                        var pagHtml = renderPagination(response.currentPage, response.totalPages);
+                        $('#paginacao-container').html(pagHtml);
+
+                        // handler é capturado abaixo
+                        var novaUrl = '@Url.Action("Index")' + '?' +
+                            $('#form-filtros').serialize().replace(/&?page=\d+/g, '') +
+                            '&page=' + response.currentPage;
+                        history.pushState({}, '', novaUrl);
+                    },
+                    error: function () {
+                        $('#tabela-inventario-body').html('<tr><td colspan="18" class="text-center text-danger">Erro ao carregar dados.</td></tr>');
+                    }
+                });
+            }
+
+            // filtros e pageSize
+            $('#form-filtros').on('change', 'select', function () {
+                atualizarConteudo(1);
+            });
+            $('#termo').on('keyup', function () {
+                clearTimeout(this._timeout);
+                this._timeout = setTimeout(function () {
+                    atualizarConteudo(1);
+                }, 500);
+            });
+
+            // cliques na paginação
+            $('#paginacao-container').on('click', 'a.page-link', function (e) {
+                e.preventDefault();
+                var page = parseInt($(this).data('page')) || 1;
+                atualizarConteudo(page);
+            });
+
+            // carregar inicial
+            atualizarConteudo(@Model.CurrentPage);
+        });
+    </script>
+}

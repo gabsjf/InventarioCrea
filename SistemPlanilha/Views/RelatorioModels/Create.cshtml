@@ -1,0 +1,112 @@
+﻿@model SistemPlanilha.ViewModels.RelatorioFormViewModel
+
+@{
+    ViewData["Title"] = "Criar Nova Manutenção";
+}
+
+<div class="container py-4">
+    <h2 class="fw-bold">
+        <i class="bi bi-clipboard-plus"></i> Criar nova manutenção
+        @if (!string.IsNullOrEmpty(ViewBag.NomeItem))
+        {
+            <span class="text-muted fs-5">para o item: <strong>@ViewBag.NomeItem</strong></span>
+        }
+    </h2>
+    <hr />
+
+    <form asp-action="Create" method="post">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="Relatorio.InventarioId" class="form-label">Item do Inventário</label>
+                <select asp-for="Relatorio.InventarioId" class="form-select" asp-items="Model.InventarioItens"></select>
+                <span asp-validation-for="Relatorio.InventarioId" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Relatorio.StatusManutencaoId" class="form-label">Status da Manutenção</label>
+                <select asp-for="Relatorio.StatusManutencaoId" class="form-select" asp-items="Model.StatusesManutencao">
+                    <option value="">Selecione o status</option>
+                </select>
+                <span asp-validation-for="Relatorio.StatusManutencaoId" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-12">
+                <label asp-for="Relatorio.Descricao" class="form-label">Descrição do Problema</label>
+                <textarea asp-for="Relatorio.Descricao" class="form-control" rows="2"></textarea>
+                <span asp-validation-for="Relatorio.Descricao" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Relatorio.Responsavel" class="form-label">Responsável pelo Item</label>
+                <input asp-for="Relatorio.Responsavel" class="form-control" />
+                <span asp-validation-for="Relatorio.Responsavel" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Relatorio.ResponsavelTecnico" class="form-label">Técnico Responsável</label>
+                <input asp-for="Relatorio.ResponsavelTecnico" class="form-control" />
+                <span asp-validation-for="Relatorio.ResponsavelTecnico" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-12">
+                <label asp-for="Relatorio.AcoesRealizadas" class="form-label">Ações Realizadas</label>
+                <textarea asp-for="Relatorio.AcoesRealizadas" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Relatorio.AcoesRealizadas" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Relatorio.TipoManutencao" class="form-label">Tipo de Manutenção (Preventiva, Corretiva...)</label>
+                <input asp-for="Relatorio.TipoManutencao" class="form-control" />
+                <span asp-validation-for="Relatorio.TipoManutencao" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Relatorio.TempoEstimadoResolucao" class="form-label">Tempo Estimado (Ex: 2h, 1 dia)</label>
+                <input asp-for="Relatorio.TempoEstimadoResolucao" class="form-control" />
+                <span asp-validation-for="Relatorio.TempoEstimadoResolucao" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-12">
+                <label asp-for="Relatorio.PecasSubstituidas" class="form-label">Peças Substituídas</label>
+                <input asp-for="Relatorio.PecasSubstituidas" class="form-control" />
+                <span asp-validation-for="Relatorio.PecasSubstituidas" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-12">
+                <label asp-for="Relatorio.ObservacoesAdicionais" class="form-label">Observações Adicionais</label>
+                <textarea asp-for="Relatorio.ObservacoesAdicionais" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Relatorio.ObservacoesAdicionais" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Relatorio.ProximaManutencao" class="form-label">Próxima Manutenção Agendada</label>
+                <input asp-for="Relatorio.ProximaManutencao" type="date" class="form-control" />
+                <span asp-validation-for="Relatorio.ProximaManutencao" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="mt-4 d-flex justify-content-between">
+            <a asp-controller="Inventario" asp-action="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left-circle"></i> Voltar para o Inventário
+            </a>
+
+            <a asp-controller="RelatorioModels" asp-action="Index" asp-route-inventarioId="@Model.Relatorio.InventarioId" class="btn btn-info">
+                <i class="bi bi-card-list"></i> Lista de Manutenções
+            </a>
+       
+
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-save"></i> Salvar Manutenção
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

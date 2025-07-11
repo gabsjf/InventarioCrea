@@ -1,0 +1,100 @@
+﻿@model IEnumerable<SistemPlanilha.Models.RelatorioModel>
+
+@{
+    ViewData["Title"] = "Manutenções";
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
+
+<style>
+    .text-truncate-ellipsis {
+        max-width: 180px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    th, td {
+        vertical-align: middle;
+    }
+</style>
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="fw-bold"><i class="bi bi-clipboard-data"></i> Manutenções</h2>
+        <a asp-controller="RelatorioModels" asp-action="Create" class="btn btn-success">
+            <i class="bi bi-plus-circle"></i> Criar novo
+        </a>
+    </div>
+
+
+
+
+    <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle">
+            <thead class="table-dark text-center">
+                <tr>
+                    <th>Inventário</th>
+                    <th>Descrição</th>
+                    <th>Data</th>
+                    <th>Responsável</th>
+                    <th>Tipo</th>
+                    <th>Ações Realizadas</th>
+                    <th>Tempo</th>
+                    <th>Status</th>
+                    <th>Observações</th>
+                    <th>Próxima</th>
+                    <th>Técnico</th>
+                    <th>Peças</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Inventario?.Id</td>
+                        <td>
+                            <span class="text-truncate-ellipsis d-inline-block" title="@item.Descricao">
+                                @item.Descricao
+                            </span>
+                        </td>
+                        <td>@item.DataCriacao?.ToString("dd/MM/yyyy")</td>
+                        <td>@item.Responsavel</td>
+                        <td>@item.TipoManutencao</td>
+                        <td>
+                            <span class="text-truncate-ellipsis d-inline-block" title="@item.AcoesRealizadas">
+                                @item.AcoesRealizadas
+                            </span>
+                        </td>
+                        <td>@item.TempoEstimadoResolucao</td>
+                        <td>@item.StatusManutencao?.Nome</td>
+                        <td>
+                            <span class="text-truncate-ellipsis d-inline-block" title="@item.ObservacoesAdicionais">
+                                @item.ObservacoesAdicionais
+                            </span>
+                        </td>
+                        <td>@item.ProximaManutencao?.ToString("dd/MM/yyyy")</td>
+                        <td>@item.ResponsavelTecnico</td>
+                        <td>
+                            <span class="text-truncate-ellipsis d-inline-block" title="@item.PecasSubstituidas">
+                                @item.PecasSubstituidas
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm me-1" title="Editar">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                            <a asp-controller="RelatorioModels" asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm me-1" title="Detalhes">
+                                <i class="bi bi-info-circle"></i>
+                            </a>
+                            <a asp-controller="RelatorioModels" asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm" title="Deletar">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

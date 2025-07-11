@@ -1,0 +1,46 @@
+﻿@model SistemPlanilha.Models.InventarioModel
+
+@{
+    ViewData["Title"] = "Confirmar Exclusão";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-danger text-white">
+                <h3 class="mb-0">Confirmar Exclusão</h3>
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">Você tem certeza que deseja apagar permanentemente este item?</h5>
+                <p class="text-muted">Esta ação não poderá ser desfeita.</p>
+
+                <div class="alert alert-secondary">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">ID:</dt>
+                        <dd class="col-sm-8">@Model.Id</dd>
+
+                        <dt class="col-sm-4">Nome do PC:</dt>
+                        <dd class="col-sm-8">@Model.PcName</dd>
+
+                        <dt class="col-sm-4">Serial:</dt>
+                        <dd class="col-sm-8">@Model.Serial</dd>
+
+                        <dt class="col-sm-4">Patrimônio:</dt>
+                        <dd class="col-sm-8">@Model.Patrimonio</dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="card-footer text-end">
+                
+                <form asp-action="Apagar" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" asp-for="Id" />
+
+                    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-danger">Sim, Apagar Permanentemente</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

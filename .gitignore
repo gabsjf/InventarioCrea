@@ -1,0 +1,29 @@
+# Dependencies
+**/[Bb]in/
+**/[Oo]bj/
+**/[Pp]ackages/
+**/[Rr]elease/
+**/[Dd]ebug/
+
+# Visual Studio
+*.suo
+*.user
+*.sln.docstates
+*.vs/
+.vs/
+
+# User-specific files
+*.userosscache
+*.sln.ide
+
+# Build results
+[Bb]uild/
+[Rr]elease/
+[Dd]ebug/
+
+# Rider
+.idea/
+
+# Secrets
+secrets.json
+appsettings.Development.json 
