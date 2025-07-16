@@ -8,11 +8,11 @@ namespace SistemPlanilha.ViewModels
     {
         public RelatorioModel Relatorio { get; set; }
 
-        // Atributo para dizer ao sistema: "Não tente validar ou preencher esta propriedade no POST"
+        
         [BindNever]
         public SelectList? InventarioItens { get; set; }
 
-        // O mesmo aqui
+       
         [BindNever]
         public SelectList? StatusesManutencao { get; set; }
     }

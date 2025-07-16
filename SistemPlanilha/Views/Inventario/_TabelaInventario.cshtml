@@ -26,8 +26,15 @@
             </td>
             <td class="text-center">
                 <div class="btn-group btn-group-sm" role="group">
-                    <a asp-controller="Inventario" asp-action="Editar" asp-route-id="@item.Id" class="btn btn-warning" title="Editar">✏️</a>
-                    <a asp-controller="Inventario" asp-action="Apagar" asp-route-id="@item.Id" class="btn btn-danger" title="Apagar">🗑️</a>
+                    <button class="btn btn-sm btn-primary js-open-edit-modal"
+                            data-url="@Url.Action("Editar", "Inventario", new { id = item.Id })">
+                        ✏️
+                    </button>
+                    <button type="button"
+                            class="btn btn-danger js-open-modal"
+                            data-url="@Url.Action("Apagar", new { id = item.Id })">
+                        🗑️
+                    </button>
                     <a asp-controller="RelatorioModels" asp-action="Create" asp-route-inventarioId="@item.Id" class="btn btn-primary" title="Novo Relatório">📋</a>
                 </div>
             </td>

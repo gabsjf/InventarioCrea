@@ -10,6 +10,7 @@
     <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
 
     <style>
+        /* Estilos Gerais (sem alterações) */
         body {
             transition: background-color 0.3s, color 0.3s;
             margin: 0;
@@ -17,15 +18,16 @@
             background-color: #f4f7f6;
         }
 
+        /* --- SIDEBAR --- */
         #sidebar {
             position: fixed;
             top: 0;
             left: 0;
             width: 250px;
             height: 100vh;
-            background-color: #002855;
+            background-color: #002855; /* Cor principal da marca */
             padding: 1rem;
-            transition: width 0.3s ease;
+            transition: width 0.3s ease, background-color 0.3s; /* Adicionada transição */
             z-index: 1000;
             overflow-x: hidden;
         }
@@ -57,9 +59,10 @@
                 transition: background-color 0.2s, color 0.2s;
             }
 
+                /* [MELHORIA] O efeito hover agora é consistente em ambos os temas */
                 #sidebar .nav-link:hover {
-                    background-color: #FDB913;
-                    color: #002855;
+                    background-color: #FDB913; /* Amarelo vibrante da marca */
+                    color: #002855; /* Texto azul para contraste */
                 }
 
                 #sidebar .nav-link i {
@@ -75,6 +78,7 @@
             color: #ffffff;
         }
 
+        /* --- CONTEÚDO --- */
         #content {
             margin-left: 250px;
             transition: margin-left 0.3s ease;
@@ -104,6 +108,7 @@
             padding: 2rem;
         }
 
+        /* --- SELETOR DE TEMA --- */
         .theme-switch-wrapper {
             display: flex;
             align-items: center;
@@ -151,17 +156,20 @@
                 border-radius: 50%;
             }
 
-        input:checked + .slider {
-            background-color: #ccc;
+        /* [LÓGICA CORRIGIDA] O seletor agora reflete a lógica MARCADO = escuro */
+        /* Fundo do seletor para tema claro (desmarcado) */
+        input:not(:checked) + .slider {
+            background-color: #0056b3; /* Um azul mais agradável que cinza */
         }
 
-        input:not(:checked) + .slider {
+        /* Fundo do seletor para tema escuro (marcado) */
+        input:checked + .slider {
             background-color: #343a40;
         }
 
-        input:checked + .slider:before {
-            transform: translateX(26px);
-        }
+            input:checked + .slider:before {
+                transform: translateX(26px);
+            }
 
         /* --- TEMA ESCURO --- */
         body.dark-theme {
@@ -169,12 +177,52 @@
             color: #e0e0e0;
         }
 
-            body.dark-theme #sidebar {
-                background-color: #1c1c1c;
+            body.dark-theme .btn-warning {
+                background-color: transparent;
+                border-color: #ffc107;
+                color: #ffc107;
             }
 
-                body.dark-theme #sidebar .nav-link:hover {
-                    background-color: #333333;
+                body.dark-theme .btn-warning:hover {
+                    background-color: #ffc107;
+                    color: #000;
+                }
+
+            body.dark-theme .btn-danger {
+                background-color: transparent;
+                border-color: #dc3545;
+                color: #dc3545;
+            }
+
+                body.dark-theme .btn-danger:hover {
+                    background-color: #dc3545;
+                    color: #fff;
+                }
+
+            /*
+                    CORREÇÃO ADICIONADA AQUI
+                    Padroniza o botão .btn-info para também ser "fantasma" no modo escuro.
+                */
+            body.dark-theme .btn-info {
+                background-color: transparent;
+                border-color: #0dcaf0; /* Cor padrão do Bootstrap para 'info' */
+                color: #0dcaf0;
+            }
+
+                body.dark-theme .btn-info:hover {
+                    background-color: #0dcaf0;
+                    color: #fff; /* Cor do ícone ao passar o mouse */
+                }
+
+            body.dark-theme .btn-primary {
+                background-color: transparent;
+                border-color: #0d6efd;
+                color: #0d6efd;
+            }
+
+                body.dark-theme .btn-primary:hover {
+                    background-color: #0d6efd;
+                    color: #fff;
                 }
 
             body.dark-theme #page-header {
@@ -186,6 +234,7 @@
                     color: #e0e0e0;
                 }
 
+            /* Cores dos ícones do seletor de tema */
             body.dark-theme .theme-switch-wrapper .bi-moon-fill {
                 color: #FDB913;
             }
@@ -203,6 +252,7 @@
             color: #ccc;
         }
 
+        /* [MELHORIA] Estilos de DataTables para Dark Mode foram otimizados */
         body.dark-theme .dataTables_length label,
         body.dark-theme .dataTables_filter label,
         body.dark-theme .dataTables_info {
@@ -215,6 +265,14 @@
             color: #e0e0e0;
             border-color: #444;
         }
+
+            body.dark-theme .form-control:focus,
+            body.dark-theme .form-select:focus {
+                background-color: #3a3a3a;
+                color: #e0e0e0;
+                border-color: #FDB913;
+                box-shadow: 0 0 0 0.25rem rgba(253, 185, 19, 0.25);
+            }
 
         body.dark-theme .table {
             border-color: #454d55;
@@ -253,6 +311,7 @@
             --bs-table-accent-bg: rgba(255, 255, 255, 0.05);
         }
 
+        /* Botões "fantasma" para Dark Mode (mantidos, com hover definido) */
         body.dark-theme .btn-warning {
             background-color: transparent;
             border-color: #ffc107;
@@ -285,6 +344,168 @@
                 background-color: #0d6efd;
                 color: #fff;
             }
+
+
+        body.dark-theme .card,
+        body.dark-theme .bg-light, /* Alvo comum do Bootstrap */
+        body.dark-theme .bg-white /* Alvo comum do Bootstrap */ {
+            background-color: #1f1f1f !important; /* Fundo cinza escuro para conteúdo */
+            color: #e0e0e0;
+            border: 1px solid #343a40;
+        }
+
+        /* Garante que os títulos dentro dos cards fiquem brancos */
+        body.dark-theme .card-header,
+        body.dark-theme .card-title,
+        body.dark-theme .card-body h1,
+        body.dark-theme .card-body h2,
+        body.dark-theme .card-body h3 {
+            color: #ffffff;
+        }
+
+        /* Ajusta a cor dos rótulos de formulários dentro dos painéis escuros */
+        body.dark-theme .card label {
+            color: #ced4da;
+        }
+
+
+        /* 2. Correção Crítica da Tabela
+        -------------------------------------------------------------------------- */
+        /* Alvo: A tabela com texto cinza claro em fundo branco. */
+
+        /* Corrigindo o fundo das células e a cor do texto */
+        body.dark-theme .table > tbody > tr > td {
+            background-color: #212529; /* Fundo escuro para as células */
+            color: #e0e0e0; /* Texto claro e legível */
+            border-color: #343a40;
+        }
+
+            /* Garante que a cor do texto seja aplicada em links dentro da tabela */
+            body.dark-theme .table > tbody > tr > td a {
+                color: #a9c6ff;
+            }
+
+        /* Ajusta o efeito "striped" (zebrado) para o dark mode */
+        body.dark-theme .table-striped > tbody > tr:nth-of-type(odd) > * {
+            --bs-table-accent-bg: rgba(255, 255, 255, 0.05); /* Usa o estilo sutil que você já tinha */
+            color: #e0e0e0;
+        }
+
+        /* Ajusta o efeito de hover para o dark mode */
+        body.dark-theme .table-hover > tbody > tr:hover > * {
+            --bs-table-accent-bg: #343a40; /* Cor de hover mais escura */
+            color: #fff;
+        }
+
+
+        /* 3. Correção dos Modais
+        -------------------------------------------------------------------------- */
+        /* Alvo: Modais que aparecem com fundo branco, como o de 'Confirmar Exclusão'. */
+        body.dark-theme .modal-content {
+            background-color: #2c2c2c;
+            color: #e0e0e0;
+            border: 1px solid #555;
+        }
+
+        body.dark-theme .modal-header {
+            border-bottom: 1px solid #444;
+        }
+
+            body.dark-theme .modal-header .modal-title {
+                color: #ffffff;
+            }
+
+        body.dark-theme .modal-footer {
+            border-top: 1px solid #444;
+        }
+
+        /* Botão de fechar (X) do modal */
+        body.dark-theme .btn-close {
+            filter: invert(1) grayscale(100%) brightness(200%);
+        }
+
+
+        /* 4. Lista de Detalhes
+        -------------------------------------------------------------------------- */
+        /* Alvo: A tela de 'Detalhes da Manutenção' */
+        body.dark-theme .list-group-item {
+            background-color: #1f1f1f;
+            border: 1px solid #343a40;
+            color: #e0e0e0;
+        }
+
+            body.dark-theme .list-group-item strong {
+                color: #ffffff; /* Destaca os rótulos como 'Inventário', 'Descrição', etc. */
+            }
+
+        /* 5. Botões em Modais
+        -------------------------------------------------------------------------- */
+        /* Padroniza o botão secundário para ter mais destaque no dark mode */
+        body.dark-theme .modal-footer .btn-secondary,
+        body.dark-theme .modal-footer .btn-dark {
+            background-color: #5a5a5a;
+            border-color: #5a5a5a;
+            color: #fff;
+        }
+
+        body.dark-theme .pagination {
+            background-color: transparent;
+        }
+
+            body.dark-theme .pagination .page-link {
+                background-color: #2c2c2c;
+                color: #e0e0e0;
+                border: 1px solid #444;
+            }
+
+            body.dark-theme .pagination .page-item.active .page-link {
+                background-color: #343a40;
+                color: #ffffff;
+                border-color: #555;
+            }
+
+            body.dark-theme .pagination .page-item.disabled .page-link {
+                background-color: transparent;
+                color: #6c757d;
+                border-color: #444;
+            }
+
+            body.dark-theme .pagination .page-link:hover,
+            body.dark-theme .pagination .page-link:focus {
+                background-color: #343a40;
+                color: #ffffff;
+                border-color: #555;
+            }
+
+        .table-responsive {
+            margin-bottom: 1rem; /* ajuste a sua necessidade */
+        }
+
+        /* 2) Scrollbar styling apenas no Dark Mode */
+        body.dark-theme {
+            /* Firefox */
+            scrollbar-color: #555 #2c2c2c;
+            scrollbar-width: thin;
+        }
+
+            /* WebKit (Chrome, Edge, Safari) — aqui só na área da tabela */
+            body.dark-theme .table-responsive::-webkit-scrollbar {
+                height: 8px;
+            }
+
+            body.dark-theme .table-responsive::-webkit-scrollbar-track {
+                background: #2c2c2c;
+            }
+
+            body.dark-theme .table-responsive::-webkit-scrollbar-thumb {
+                background-color: #555;
+                border-radius: 4px;
+                border: 2px solid #2c2c2c;
+            }
+
+                body.dark-theme .table-responsive::-webkit-scrollbar-thumb:hover {
+                    background-color: #666;
+                }
     </style>
 </head>
 
@@ -337,19 +558,23 @@
             const applyTheme = (theme) => {
                 if (theme === 'dark') {
                     body.classList.add('dark-theme');
-                    themeCheckbox.checked = false; // DESMARCADO = escuro
+                    // [LÓGICA CORRIGIDA] Agora, 'marcado' significa tema escuro.
+                    themeCheckbox.checked = true;
                 } else {
                     body.classList.remove('dark-theme');
-                    themeCheckbox.checked = true; // MARCADO = claro
+                    // [LÓGICA CORRIGIDA] E 'desmarcado' significa tema claro.
+                    themeCheckbox.checked = false;
                 }
             };
 
             themeCheckbox.addEventListener('change', () => {
-                const newTheme = themeCheckbox.checked ? 'light' : 'dark';
+                // [LÓGICA CORRIGIDA] A lógica foi invertida para ser mais intuitiva.
+                const newTheme = themeCheckbox.checked ? 'dark' : 'light';
                 localStorage.setItem('theme-preference', newTheme);
                 applyTheme(newTheme);
             });
 
+            // [MELHORIA] Define 'light' como padrão se não houver preferência ou se o valor for inválido.
             const savedTheme = localStorage.getItem('theme-preference') || 'light';
             applyTheme(savedTheme);
         })();

@@ -3,17 +3,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SistemPlanilha.Data;
+using SistemPlanilha.Data.Helpers;      // <-- PaginatedList aqui
 using SistemPlanilha.Models;
 using SistemPlanilha.Repositorio;
 using SistemPlanilha.ViewModels;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Microsoft.AspNetCore.Mvc.ViewEngines;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace SistemPlanilha.Controllers
 {
@@ -22,32 +19,39 @@ namespace SistemPlanilha.Controllers
         private readonly IInventarioRepositorio _inventarioRepositorio;
         private readonly BancoContext _bancoContext;
 
-        public InventarioController(IInventarioRepositorio inventarioRepositorio, BancoContext bancoContext)
+        public InventarioController(
+            IInventarioRepositorio inventarioRepositorio,
+            BancoContext bancoContext)
         {
             _inventarioRepositorio = inventarioRepositorio;
             _bancoContext = bancoContext;
         }
 
-        private async Task PopularInventarioFormViewModelSelectLists(InventarioFormViewModel viewModel)
+        private async Task PopularInventarioFormViewModelSelectLists(InventarioFormViewModel vm)
         {
-            viewModel.Setores = new SelectList(await _bancoContext.Setores.AsNoTracking().ToListAsync(), "Id", "Nome", viewModel.SetorId);
-            viewModel.Tipos = new SelectList(await _bancoContext.Tipos.AsNoTracking().ToListAsync(), "Id", "Nome", viewModel.TipoId);
-            viewModel.Situacoes = new SelectList(await _bancoContext.Situacoes.AsNoTracking().ToListAsync(), "Id", "Nome", viewModel.SituacaoId);
-            viewModel.WinVers = new SelectList(await _bancoContext.WinVer.AsNoTracking().ToListAsync(), "Id", "Nome", viewModel.WinVerId);
-            viewModel.Offices = new SelectList(await _bancoContext.Office.AsNoTracking().ToListAsync(), "Id", "Nome", viewModel.OfficeId);
+            vm.Setores = new SelectList(await _bancoContext.Setores.AsNoTracking().ToListAsync(), "Id", "Nome", vm.SetorId);
+            vm.Tipos = new SelectList(await _bancoContext.Tipos.AsNoTracking().ToListAsync(), "Id", "Nome", vm.TipoId);
+            vm.Situacoes = new SelectList(await _bancoContext.Situacoes.AsNoTracking().ToListAsync(), "Id", "Nome", vm.SituacaoId);
+            vm.WinVers = new SelectList(await _bancoContext.WinVer.AsNoTracking().ToListAsync(), "Id", "Nome", vm.WinVerId);
+            vm.Offices = new SelectList(await _bancoContext.Office.AsNoTracking().ToListAsync(), "Id", "Nome", vm.OfficeId);
         }
 
-        public async Task<IActionResult> Index(string termo, string filtroSO = "todos", string filtroOffice = "todos",
-                                             int? setorId = null, int? tipoId = null, int? situacaoId = null,
-                                             int? winVerId = null, int? officeId = null,
-                                             int page = 1, int pageSize = 10)
+        // ---------- INDEX com PaginatedList (reload de página) ----------
+        public async Task<IActionResult> Index(
+            string termo,
+            string filtroSO = "todos",
+            string filtroOffice = "todos",
+            int? setorId = null,
+            int? tipoId = null,
+            int? situacaoId = null,
+            int? winVerId = null,
+            int? officeId = null,
+            int page = 1,
+            int pageSize = 10)
         {
-            var viewModel = new InventarioIndexViewModel
+            // 1) prepara ViewModel com filtros e selects
+            var vm = new InventarioIndexViewModel
             {
-                Inventarios = new List<InventarioModel>(),
-                CurrentPage = page,
-                PageSize = pageSize,
-                TotalPages = 0,
                 TermoAtual = termo,
                 FiltroSO = filtroSO,
                 FiltroOffice = filtroOffice,
@@ -56,86 +60,89 @@ namespace SistemPlanilha.Controllers
                 SituacaoId = situacaoId,
                 WinVerId = winVerId,
                 OfficeId = officeId,
-                // CORREÇÃO: Adicionado AsNoTracking() para consistência e performance.
+                PageSize = pageSize,
                 Setores = new SelectList(await _bancoContext.Setores.AsNoTracking().ToListAsync(), "Id", "Nome", setorId),
                 Tipos = new SelectList(await _bancoContext.Tipos.AsNoTracking().ToListAsync(), "Id", "Nome", tipoId),
                 Situacoes = new SelectList(await _bancoContext.Situacoes.AsNoTracking().ToListAsync(), "Id", "Nome", situacaoId),
                 WinVers = new SelectList(await _bancoContext.WinVer.AsNoTracking().ToListAsync(), "Id", "Nome", winVerId),
                 Offices = new SelectList(await _bancoContext.Office.AsNoTracking().ToListAsync(), "Id", "Nome", officeId)
             };
-            return View(viewModel);
+
+            // 2) monta query com filtros
+            var query = _inventarioRepositorio.Buscar(
+                termo, filtroSO, filtroOffice,
+                setorId, tipoId, situacaoId, winVerId, officeId
+            ).AsNoTracking();
+
+            // 3) cria PaginatedList
+            var paged = await PaginatedList<InventarioModel>
+                .CreateAsync(query, page, pageSize);
+
+            // 4) preenche VM com itens e paginação
+            vm.Inventarios = paged;
+            vm.CurrentPage = paged.PageIndex;
+            vm.TotalPages = paged.TotalPages;
+
+            return View(vm);
         }
 
         [HttpGet]
-        public async Task<IActionResult> BuscarInventario(string termo, string filtroSO, string filtroOffice,
-                                                         int? setorId = null, int? tipoId = null, int? situacaoId = null,
-                                                         int? winVerId = null, int? officeId = null,
-                                                         int page = 1, int pageSize = 10)
-        {
-            var query = _inventarioRepositorio.Buscar(termo, filtroSO, filtroOffice, setorId, tipoId, situacaoId, winVerId, officeId);
-
-            var totalItens = await query.CountAsync();
-            var totalPages = (int)Math.Ceiling((double)totalItens / pageSize);
-
-            if (page > totalPages && totalPages > 0) page = totalPages;
-
-            var itensPaginados = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
-
-            // CORREÇÃO: Renderizar a paginação no servidor para simplificar o JavaScript.
-            var viewModelParaPartials = new InventarioIndexViewModel
-            {
-                CurrentPage = page,
-                PageSize = pageSize,
-                TotalPages = totalPages,
-                TermoAtual = termo,
-                FiltroSO = filtroSO,
-                FiltroOffice = filtroOffice,
-                SetorId = setorId,
-                TipoId = tipoId,
-                SituacaoId = situacaoId,
-                WinVerId = winVerId,
-                OfficeId = officeId
-            };
-
-            var tabelaHtml = await RenderViewToStringAsync("_TabelaInventario", itensPaginados);
-
-            return Json(new
-            {
-                tabelaHtml,
-                currentPage = page,
-                totalPages
-            });
-        }
-
-        [HttpGet]
-        public IActionResult Details(int id)
+        public async Task<IActionResult> Details(int id)
         {
             var inventario = _inventarioRepositorio.ListarPorId(id);
             if (inventario == null) return NotFound();
-            var relatorios = _bancoContext.RelatoriosManutencao.Where(r => r.InventarioId == id).Include(r => r.StatusManutencao).ToList();
-            var viewModel = new InventarioDetalhesViewModel { Inventario = inventario, Relatorios = relatorios };
-            return View(viewModel);
+
+            var rels = await _bancoContext.RelatoriosManutencao
+                .Where(r => r.InventarioId == id)
+                .Include(r => r.StatusManutencao)
+                .ToListAsync();
+
+            var vm = new InventarioDetalhesViewModel
+            {
+                Inventario = inventario,
+                Relatorios = rels
+            };
+            return View(vm);
         }
 
         [HttpGet]
         public async Task<IActionResult> Criar()
         {
-            var viewModel = new InventarioFormViewModel();
-            await PopularInventarioFormViewModelSelectLists(viewModel);
-            return View("Criar", viewModel);
+            var vm = new InventarioFormViewModel();
+            await PopularInventarioFormViewModelSelectLists(vm);
+            return View(vm);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Criar(InventarioFormViewModel viewModel)
+        public async Task<IActionResult> Criar(InventarioFormViewModel vm)
         {
             if (!ModelState.IsValid)
             {
-                await PopularInventarioFormViewModelSelectLists(viewModel);
-                return View("Criar", viewModel);
+                await PopularInventarioFormViewModelSelectLists(vm);
+                return View(vm);
             }
-            var novoItem = new InventarioModel { /* ... mapeamento ... */ }; // Seu mapeamento aqui
-            _inventarioRepositorio.Adicionar(novoItem);
+
+            var novo = new InventarioModel
+            {
+                PcName = vm.PcName,
+                Serial = vm.Serial,
+                Patrimonio = vm.Patrimonio,
+                Usuario = vm.Usuario,
+                TipoId = vm.TipoId,
+                SetorId = vm.SetorId,
+                SituacaoId = vm.SituacaoId,
+                WinVerId = vm.WinVerId,
+                OfficeId = vm.OfficeId,
+                LicencaSO = vm.LicencaSO,
+                LicencaOffice = vm.LicencaOffice,
+                Modelo = vm.Modelo,
+                Responsavel = vm.Responsavel,
+                Processador = vm.Processador,
+                Ssd = vm.Ssd,
+                Obs = vm.Obs
+            };
+            _inventarioRepositorio.Adicionar(novo);
             TempData["MensagemSucesso"] = "Item criado com sucesso!";
             return RedirectToAction(nameof(Index));
         }
@@ -143,98 +150,76 @@ namespace SistemPlanilha.Controllers
         [HttpGet]
         public async Task<IActionResult> Editar(int id)
         {
-            var itemDoBanco = _inventarioRepositorio.ListarPorId(id);
-            if (itemDoBanco == null)
-            {
-                return NotFound();
-            }
+            var item = _inventarioRepositorio.ListarPorId(id);
+            if (item == null) return NotFound();
 
-            // CORREÇÃO: Mapeando os dados do item buscado para o ViewModel
-            var viewModel = new InventarioFormViewModel
+            var vm = new InventarioFormViewModel
             {
-                Id = itemDoBanco.Id,
-                PcName = itemDoBanco.PcName,
-                Serial = itemDoBanco.Serial,
-                Patrimonio = itemDoBanco.Patrimonio,
-                Usuario = itemDoBanco.Usuario,
-                Modelo = itemDoBanco.Modelo,
-                Responsavel = itemDoBanco.Responsavel,
-                LicencaSO = itemDoBanco.LicencaSO,
-                LicencaOffice = itemDoBanco.LicencaOffice,
-                Processador = itemDoBanco.Processador,
-                Ssd = itemDoBanco.Ssd,
-                Obs = itemDoBanco.Obs,
-                SetorId = itemDoBanco.SetorId,
-                TipoId = itemDoBanco.TipoId,
-                SituacaoId = itemDoBanco.SituacaoId,
-                WinVerId = itemDoBanco.WinVerId,
-                OfficeId = itemDoBanco.OfficeId,
+                Id = item.Id,
+                PcName = item.PcName,
+                Serial = item.Serial,
+                Patrimonio = item.Patrimonio,
+                Usuario = item.Usuario,
+                TipoId = item.TipoId,
+                SetorId = item.SetorId,
+                SituacaoId = item.SituacaoId,
+                WinVerId = item.WinVerId,
+                OfficeId = item.OfficeId,
+                LicencaSO = item.LicencaSO,
+                LicencaOffice = item.LicencaOffice,
+                Modelo = item.Modelo,
+                Responsavel = item.Responsavel,
+                Processador = item.Processador,
+                Ssd = item.Ssd,
+                Obs = item.Obs
             };
-
-            // Este método popula os <select> (dropdowns) do formulário
-            await PopularInventarioFormViewModelSelectLists(viewModel);
-
-            // Envia o ViewModel PREENCHIDO para a View "Editar.cshtml"
-            return View("Editar", viewModel);
+            await PopularInventarioFormViewModelSelectLists(vm);
+            return PartialView("_EditarModalPartial", vm);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Editar(InventarioFormViewModel viewModel) // Alterado para async para consistência
+        public async Task<IActionResult> Editar(int id, InventarioFormViewModel vm)
         {
-            try
+            if (id != vm.Id) return BadRequest();
+
+            if (!ModelState.IsValid)
             {
-                // Primeiro, verifica se os dados do formulário são válidos (ex: campos obrigatórios)
-                if (!ModelState.IsValid)
-                {
-                    // Se não for válido, repopula os dropdowns e retorna para a mesma tela de edição
-                    await PopularInventarioFormViewModelSelectLists(viewModel);
-                    return View("Editar", viewModel);
-                }
-
-                // CORREÇÃO: Mapeia os dados recebidos do formulário (viewModel) para um objeto do tipo InventarioModel
-                var itemParaAtualizar = new InventarioModel
-                {
-                    Id = viewModel.Id, // O ID é crucial para saber qual item atualizar
-                    PcName = viewModel.PcName,
-                    Serial = viewModel.Serial,
-                    Patrimonio = viewModel.Patrimonio,
-                    Usuario = viewModel.Usuario,
-                    Modelo = viewModel.Modelo,
-                    Responsavel = viewModel.Responsavel,
-                    LicencaSO = viewModel.LicencaSO,
-                    LicencaOffice = viewModel.LicencaOffice,
-                    Processador = viewModel.Processador,
-                    Ssd = viewModel.Ssd,
-                    Obs = viewModel.Obs,
-                    SetorId = viewModel.SetorId,
-                    TipoId = viewModel.TipoId,
-                    SituacaoId = viewModel.SituacaoId,
-                    WinVerId = viewModel.WinVerId,
-                    OfficeId = viewModel.OfficeId,
-                };
-
-                // Envia o objeto COMPLETO E ATUALIZADO para o método do repositório
-                _inventarioRepositorio.Atualizar(itemParaAtualizar);
-
-                TempData["MensagemSucesso"] = "Item atualizado com sucesso!";
-                return RedirectToAction(nameof(Index));
+                await PopularInventarioFormViewModelSelectLists(vm);
+                return PartialView("_EditarModalPartial", vm);
             }
-            catch (Exception erro)
-            {
-                TempData["MensagemErro"] = $"Ops, não foi possível atualizar o item. Detalhe: {erro.Message}";
-                // Em caso de erro, é bom retornar à view de edição para não perder os dados digitados
-                await PopularInventarioFormViewModelSelectLists(viewModel);
-                return View("Editar", viewModel);
-            }
+
+            var existente = _inventarioRepositorio.ListarPorId(id);
+            if (existente == null)
+                return Json(new { success = false, message = "Item não encontrado." });
+
+            existente.PcName = vm.PcName;
+            existente.Serial = vm.Serial;
+            existente.Patrimonio = vm.Patrimonio;
+            existente.Usuario = vm.Usuario;
+            existente.TipoId = vm.TipoId;
+            existente.SetorId = vm.SetorId;
+            existente.SituacaoId = vm.SituacaoId;
+            existente.WinVerId = vm.WinVerId;
+            existente.OfficeId = vm.OfficeId;
+            existente.LicencaSO = vm.LicencaSO;
+            existente.LicencaOffice = vm.LicencaOffice;
+            existente.Modelo = vm.Modelo;
+            existente.Responsavel = vm.Responsavel;
+            existente.Processador = vm.Processador;
+            existente.Ssd = vm.Ssd;
+            existente.Obs = vm.Obs;
+
+            _inventarioRepositorio.Atualizar(existente);
+            return Json(new { success = true });
         }
 
         [HttpGet]
         public IActionResult Apagar(int id)
         {
-            var itemParaApagar = _inventarioRepositorio.ListarPorId(id);
-            if (itemParaApagar == null) return NotFound();
-            return View(itemParaApagar);
+            var item = _inventarioRepositorio.ListarPorId(id);
+            if (item == null) return NotFound();
+            return PartialView("_ApagarModalPartial", item);
         }
 
         [HttpPost, ActionName("Apagar")]
@@ -244,42 +229,11 @@ namespace SistemPlanilha.Controllers
             try
             {
                 _inventarioRepositorio.Apagar(id);
-                TempData["MensagemSucesso"] = "Item apagado com sucesso!";
+                return Json(new { success = true, message = "Item apagado!" });
             }
-            catch (Exception erro)
+            catch (Exception ex)
             {
-                TempData["MensagemErro"] = $"Ops, não foi possível apagar o item. Detalhe: {erro.Message}";
-            }
-            return RedirectToAction(nameof(Index));
-        }
-
-        private async Task<string> RenderViewToStringAsync(string viewName, object model)
-        {
-            // Seu método de renderização está ótimo e foi mantido.
-            if (string.IsNullOrEmpty(viewName))
-                viewName = ControllerContext.ActionDescriptor.ActionName;
-
-            ViewData.Model = model;
-
-            using (var writer = new StringWriter())
-            {
-                try
-                {
-                    var viewEngine = HttpContext.RequestServices.GetRequiredService<ICompositeViewEngine>();
-                    var result = viewEngine.FindView(ControllerContext, viewName, false);
-                    if (!result.Success)
-                    {
-                        var searched = string.Join("\n", result.SearchedLocations);
-                        throw new InvalidOperationException($"View '{viewName}' não encontrada. Pesquisado em:\n{searched}");
-                    }
-                    var viewContext = new ViewContext(ControllerContext, result.View, ViewData, TempData, writer, new HtmlHelperOptions());
-                    await result.View.RenderAsync(viewContext);
-                    return writer.GetStringBuilder().ToString();
-                }
-                catch (Exception ex)
-                {
-                    return $"";
-                }
+                return Json(new { success = false, message = ex.Message });
             }
         }
     }

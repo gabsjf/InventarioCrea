@@ -3,8 +3,7 @@
     public class StatusManutencao
     {
         public int Id { get; set; }
-        public string? Nome { get; set; }  // Exemplo: "Pendente", "Em andamento", "Concluído"
-
+        public string? Nome { get; set; } 
         public ICollection<RelatorioModel>? Relatorios { get; set; }
     }
 }

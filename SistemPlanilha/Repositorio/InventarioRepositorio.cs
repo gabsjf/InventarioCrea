@@ -17,8 +17,7 @@ namespace SistemPlanilha.Repositorio
 
         public IQueryable<InventarioModel> Buscar(string termo, string filtroSO, string filtroOffice, int? setorId, int? tipoId, int? situacaoId, int? winVerId, int? officeId)
         {
-            // O AsQueryable() é crucial para garantir que a query continue sendo construída
-            // e não seja executada prematuramente. Já está correto aqui.
+           
             IQueryable<InventarioModel> query = _bancoContext.Inventario
                                                               .Include(i => i.WinVer)
                                                               .Include(i => i.Office)
@@ -26,12 +25,11 @@ namespace SistemPlanilha.Repositorio
                                                               .Include(i => i.Tipo)
                                                               .Include(i => i.Situacao);
 
-            // Tratamento do termo de busca para evitar NullReferenceException no ToLower()
-            // e garantir que o LIKE funcione mesmo com termo vazio
-            var termoParaBusca = termo?.ToLower() ?? string.Empty; // Converte para minúsculas ou string vazia se null
+           
+            var termoParaBusca = termo?.ToLower() ?? string.Empty;
             var termoLike = $"%{termoParaBusca}%";
 
-            if (!string.IsNullOrWhiteSpace(termoParaBusca)) // Use termoParaBusca aqui
+            if (!string.IsNullOrWhiteSpace(termoParaBusca)) 
             {
                 query = query.Where(x =>
                     (x.PcName != null && EF.Functions.Like(x.PcName.ToLower(), termoLike)) ||
@@ -41,12 +39,11 @@ namespace SistemPlanilha.Repositorio
                     (x.Ssd != null && EF.Functions.Like(x.Ssd.ToLower(), termoLike)) ||
                     (x.Obs != null && EF.Functions.Like(x.Obs.ToLower(), termoLike)) ||
                     (x.Modelo != null && EF.Functions.Like(x.Modelo.ToLower(), termoLike)) ||
-                    (x.Setor != null && x.Setor.Nome != null && EF.Functions.Like(x.Setor.Nome.ToLower(), termoLike)) || // Added null check for Setor.Nome
-                    (x.Tipo != null && x.Tipo.Nome != null && EF.Functions.Like(x.Tipo.Nome.ToLower(), termoLike)) ||     // Added null check for Tipo.Nome
-                    (x.Situacao != null && x.Situacao.Nome != null && EF.Functions.Like(x.Situacao.Nome.ToLower(), termoLike)) || // Added null check for Situacao.Nome
-                    (x.WinVer != null && x.WinVer.Nome != null && EF.Functions.Like(x.WinVer.Nome.ToLower(), termoLike)) || // Added null check for WinVer.Nome
-                    (x.Office != null && x.Office.Nome != null && EF.Functions.Like(x.Office.Nome.ToLower(), termoLike)) || // Added null check for Office.Nome
-                                                                                                                            // Convertendo Patrimonio para string explicitamente para evitar erros se for int/long
+                    (x.Setor != null && x.Setor.Nome != null && EF.Functions.Like(x.Setor.Nome.ToLower(), termoLike)) || 
+                    (x.Tipo != null && x.Tipo.Nome != null && EF.Functions.Like(x.Tipo.Nome.ToLower(), termoLike)) ||    
+                    (x.Situacao != null && x.Situacao.Nome != null && EF.Functions.Like(x.Situacao.Nome.ToLower(), termoLike)) || 
+                    (x.WinVer != null && x.WinVer.Nome != null && EF.Functions.Like(x.WinVer.Nome.ToLower(), termoLike)) ||
+                    (x.Office != null && x.Office.Nome != null && EF.Functions.Like(x.Office.Nome.ToLower(), termoLike)) ||
                     (x.Patrimonio != null && EF.Functions.Like(x.Patrimonio.ToString(), termoLike)) ||
                     EF.Functions.Like(x.Id.ToString(), termoLike)
                 );
@@ -62,16 +59,11 @@ namespace SistemPlanilha.Repositorio
             if (tipoId.HasValue && tipoId > 0) query = query.Where(x => x.TipoId == tipoId.Value);
             if (situacaoId.HasValue && situacaoId > 0) query = query.Where(x => x.SituacaoId == situacaoId.Value);
 
-            // Filtros adicionados
+      
             if (winVerId.HasValue && winVerId > 0) query = query.Where(x => x.WinVerId == winVerId.Value);
             if (officeId.HasValue && officeId > 0) query = query.Where(x => x.OfficeId == officeId.Value);
 
-            // AQUI ESTÁ A CHAVE: Não force o OrderBy prematuramente.
-            // O OrderBy deve vir antes do Skip/Take, mas como o Skip/Take será feito no Controller,
-            // podemos deixar o OrderBy aqui ou fazer uma depuração mais aprofundada.
-            // Para garantir que a contagem (CountAsync) no Controller seja correta,
-            // o `query` retornado deve representar o conjunto COMPLETO e FILTRADO de dados.
-            // Manter o OrderBy aqui é aceitável, pois ele não materializa a query ainda.
+            
             return query.OrderBy(x => x.Id);
         }
 
@@ -104,7 +96,7 @@ namespace SistemPlanilha.Repositorio
                 throw new Exception("Houve um erro na atualização do inventário: item não encontrado.");
             }
 
-            // Atualização manual das propriedades
+            
             inventarioDB.PcName = inventario.PcName;
             inventarioDB.Serial = inventario.Serial;
             inventarioDB.Patrimonio = inventario.Patrimonio;
@@ -123,7 +115,7 @@ namespace SistemPlanilha.Repositorio
             inventarioDB.WinVerId = inventario.WinVerId;
             inventarioDB.OfficeId = inventario.OfficeId;
 
-            _bancoContext.Inventario.Update(inventarioDB); // CORREÇÃO: Use _bancoContext.Inventario
+            _bancoContext.Inventario.Update(inventarioDB);
             _bancoContext.SaveChanges();
 
             return inventarioDB;

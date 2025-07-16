@@ -1,0 +1,27 @@
+﻿@model SistemPlanilha.Models.InventarioModel
+
+<div>
+    <div class="modal-header">
+        <h5 class="modal-title">Confirmar Exclusão</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    </div>
+    <div class="modal-body">
+        <p>Você tem certeza que deseja apagar o item abaixo?</p>
+        <hr />
+        <dl class="row">
+            <dt class="col-sm-3">ID:</dt>
+            <dd class="col-sm-9">@Model.Id</dd>
+            <dt class="col-sm-3">Nome do PC:</dt>
+            <dd class="col-sm-9">@Model.PcName</dd>
+            <dt class="col-sm-3">Usuário:</dt>
+            <dd class="col-sm-9">@Model.Usuario</dd>
+        </dl>
+    </div>
+    <div class="modal-footer">
+        <form asp-action="Apagar" asp-route-id="@Model.Id" method="post">
+            @Html.AntiForgeryToken()
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-danger">Confirmar Exclusão</button>
+        </form>
+    </div>
+</div>

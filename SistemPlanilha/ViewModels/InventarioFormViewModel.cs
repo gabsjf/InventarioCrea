@@ -2,14 +2,14 @@
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
-using System.Collections.Generic; // Adicione este using se for usar IEnumerable<SelectListItem>
+using System.Collections.Generic;
 
 namespace SistemPlanilha.ViewModels
 {
     public class InventarioFormViewModel
     {
         // --- Propriedades de Identificação e Dados Principais ---
-        public int Id { get; set; } // Usado para edição, se aplicável
+        public int Id { get; set; } 
 
         [Display(Name = "Nome do Computador")]
         [Required(ErrorMessage = "O nome do computador é obrigatório.")] 
