@@ -1,0 +1,46 @@
+﻿@model SistemPlanilha.ViewModels.Manutencao.RelatorioParaApagarViewModel
+
+@{
+    ViewData["Title"] = "Excluir manutenção";
+}
+
+<div class="container py-4">
+    <div class="alert alert-danger" role="alert">
+        <h4 class="alert-heading"><i class="bi bi-exclamation-triangle-fill"></i> Atenção!</h4>
+        <p>Você está prestes a <strong>excluir</strong> a manutenção abaixo. Essa ação não poderá ser desfeita.</p>
+        <hr>
+        <p class="mb-0">Confirme os dados antes de prosseguir.</p>
+    </div>
+
+    <div class="card border-danger mb-4">
+        <div class="card-header bg-danger text-white">
+            <strong>Detalhes da Manutenção a ser Excluída</strong>
+        </div>
+        <div class="card-body">
+            <dl class="row">
+               
+                <dt class="col-sm-4">ID do Inventário:</dt>
+                <dd class="col-sm-8">@Model.InventarioId</dd>
+
+                <dt class="col-sm-4">Descrição:</dt>
+                <dd class="col-sm-8">@Model.Descricao</dd>
+
+                <dt class="col-sm-4">Técnico Responsável:</dt>
+                <dd class="col-sm-8">@Model.ResponsavelTecnico</dd>
+            </dl>
+        </div>
+    </div>
+
+    <form asp-action="Delete">
+      
+        <input type="hidden" asp-for="Id" />
+        <div class="d-flex justify-content-between">
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left-circle"></i> Cancelar
+            </a>
+            <button type="submit" class="btn btn-danger">
+                <i class="bi bi-trash-fill"></i> Confirmar Exclusão
+            </button>
+        </div>
+    </form>
+</div>

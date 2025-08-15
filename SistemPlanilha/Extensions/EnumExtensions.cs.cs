@@ -2,8 +2,9 @@
 using System.ComponentModel;
 using System.Reflection;
 
-namespace SistemPlanilha.Extensions  // use o namespace do seu projeto
-{
+namespace SistemPlanilha.Extensions 
+{ 
+    
     public static class EnumExtensions
     {
         public static string GetDescription(this Enum value)

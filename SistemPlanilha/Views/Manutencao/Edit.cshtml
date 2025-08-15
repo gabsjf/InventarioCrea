@@ -1,0 +1,105 @@
+﻿@model SistemPlanilha.ViewModels.Manutencao.ExibirManutencaoFormViewModel
+
+@{
+    ViewData["Title"] = "Editar Manutenção";
+}
+
+<div class="container py-4">
+    <h2 class="fw-bold">
+        <i class="bi bi-pencil-square"></i> Editar manutenção
+    </h2>
+    <hr />
+
+    <form asp-action="Edit" method="post">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+        
+        <input type="hidden" asp-for="Command.Id" />
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="Command.InventarioId" class="form-label">Item do Inventário</label>
+                <select asp-for="Command.InventarioId" class="form-select" asp-items="Model.InventarioItens"></select>
+                <span asp-validation-for="Command.InventarioId" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Command.StatusManutencaoId" class="form-label">Status da Manutenção</label>
+                <select asp-for="Command.StatusManutencaoId" class="form-select" asp-items="Model.StatusesManutencao">
+                    <option value="">Selecione o status</option>
+                </select>
+                <span asp-validation-for="Command.StatusManutencaoId" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-12">
+                <label asp-for="Command.Descricao" class="form-label">Descrição do Problema</label>
+                <textarea asp-for="Command.Descricao" class="form-control" rows="2"></textarea>
+                <span asp-validation-for="Command.Descricao" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Command.Responsavel" class="form-label">Responsável pelo Item</label>
+                <input asp-for="Command.Responsavel" class="form-control" />
+                <span asp-validation-for="Command.Responsavel" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Command.ResponsavelTecnico" class="form-label">Técnico Responsável</label>
+                <input asp-for="Command.ResponsavelTecnico" class="form-control" />
+                <span asp-validation-for="Command.ResponsavelTecnico" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-12">
+                <label asp-for="Command.AcoesRealizadas" class="form-label">Ações Realizadas</label>
+                <textarea asp-for="Command.AcoesRealizadas" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Command.AcoesRealizadas" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Command.TipoManutencao" class="form-label">Tipo de Manutenção</label>
+                <input asp-for="Command.TipoManutencao" class="form-control" />
+                <span asp-validation-for="Command.TipoManutencao" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Command.TempoEstimadoResolucao" class="form-label">Tempo Estimado</label>
+                <input asp-for="Command.TempoEstimadoResolucao" class="form-control" />
+                <span asp-validation-for="Command.TempoEstimadoResolucao" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-12">
+                <label asp-for="Command.PecasSubstituidas" class="form-label">Peças Substituídas</label>
+                <input asp-for="Command.PecasSubstituidas" class="form-control" />
+                <span asp-validation-for="Command.PecasSubstituidas" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-12">
+                <label asp-for="Command.ObservacoesAdicionais" class="form-label">Observações Adicionais</label>
+                <textarea asp-for="Command.ObservacoesAdicionais" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Command.ObservacoesAdicionais" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Command.ProximaManutencao" class="form-label">Próxima Manutenção Agendada</label>
+                <input asp-for="Command.ProximaManutencao" type="date" class="form-control" />
+                <span asp-validation-for="Command.ProximaManutencao" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="mt-4 d-flex justify-content-between">
+            <a asp-action="Index" asp-route-inventarioId="@Model.Command.InventarioId" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left-circle"></i> Voltar para a Lista
+            </a>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-save"></i> Salvar Alterações
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+}

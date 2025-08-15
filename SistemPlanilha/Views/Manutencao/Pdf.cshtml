@@ -1,0 +1,116 @@
+﻿@model SistemPlanilha.Models.ManutencaoModel
+@{
+    Layout = null;
+ 
+    var dataCriacao = Model.DataCriacao.ToString("dd/MM/yyyy");
+    var proximaManutencao = Model.ProximaManutencao?.ToString("dd/MM/yyyy") ?? "-";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Relatório de Manutenção</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            color: #333;
+            margin: 40px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 20px;
+            margin-bottom: 30px;
+        }
+
+        .info-block {
+            margin-bottom: 25px;
+        }
+
+            .info-block h3 {
+                background-color: #f0f0f0;
+                padding: 8px;
+                border-left: 5px solid #007bff;
+                font-size: 16px;
+                margin-bottom: 10px;
+            }
+
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+            .info-table th, .info-table td {
+                padding: 6px 10px;
+                text-align: left;
+                vertical-align: top;
+            }
+
+            .info-table th {
+                width: 30%;
+                background-color: #f9f9f9;
+            }
+
+            .info-table td {
+                background-color: #fcfcfc;
+            }
+
+        .footer {
+            text-align: center;
+            font-size: 10px;
+            margin-top: 50px;
+            color: #888;
+        }
+
+        body::before {
+            content: "RELATORIO TECNICO";
+            position: fixed;
+            top: 40%;
+            left: 20%;
+            font-size: 60px;
+            color: rgba(200, 200, 200, 0.2);
+            transform: rotate(-30deg);
+            z-index: 0;
+        }
+
+    </style>
+</head>
+<body>
+
+    <img src="~/images/LogoCrea.png" alt="Logo" style="width: 120px; margin-bottom: 10px;" />
+
+
+    <h1>Relatório de Manutenção</h1>
+
+    <div class="info-block">
+        <h3>Informações Gerais</h3>
+        <table class="info-table">
+            <tr><th>ID do Inventário</th><td>@Model.InventarioId</td></tr>
+            <tr><th>Data de Criação</th><td>@dataCriacao</td></tr>
+            <tr><th>Responsável</th><td>@Model.Responsavel</td></tr>
+            <tr><th>Tipo de Manutenção</th><td>@Model.TipoManutencao</td></tr>
+            <tr><th>Status</th><td>@Model.StatusManutencao</td></tr>
+            <tr><th>Próxima Manutenção</th><td>@proximaManutencao</td></tr>
+        </table>
+    </div>
+
+    <div class="info-block">
+        <h3>Detalhes Técnicos</h3>
+        <table class="info-table">
+            <tr><th>Descrição</th><td>@Model.Descricao</td></tr>
+            <tr><th>Ações Realizadas</th><td>@Model.AcoesRealizadas</td></tr>
+            <tr><th>Tempo Estimado de Resolução</th><td>@Model.TempoEstimadoResolucao</td></tr>
+            <tr><th>Peças Substituídas</th><td>@Model.PecasSubstituidas</td></tr>
+            <tr><th>Responsável Técnico</th><td>@Model.ResponsavelTecnico</td></tr>
+            <tr><th>Observações</th><td>@Model.ObservacoesAdicionais</td></tr>
+        </table>
+    </div>
+
+    <div class="footer">
+        Relatório gerado em @DateTime.Now.ToString("dd/MM/yyyy HH:mm") - CREA
+    </div>
+
+</body>
+</html>

@@ -1,27 +1,33 @@
 ﻿@model SistemPlanilha.Models.InventarioModel
 
-<div>
+<form asp-controller="Inventario" asp-action="Apagar" method="post">
+
+    <input type="hidden" asp-for="Id" />
+
     <div class="modal-header">
-        <h5 class="modal-title">Confirmar Exclusão</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <h5 class="modal-title text-danger">Confirmar Exclusão</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
+
     <div class="modal-body">
         <p>Você tem certeza que deseja apagar o item abaixo?</p>
         <hr />
         <dl class="row">
-            <dt class="col-sm-3">ID:</dt>
-            <dd class="col-sm-9">@Model.Id</dd>
-            <dt class="col-sm-3">Nome do PC:</dt>
-            <dd class="col-sm-9">@Model.PcName</dd>
-            <dt class="col-sm-3">Usuário:</dt>
-            <dd class="col-sm-9">@Model.Usuario</dd>
+            <dt class="col-sm-4">ID:</dt>
+            <dd class="col-sm-8">@Model.Id</dd>
+
+            <dt class="col-sm-4">Nome do PC:</dt>
+            <dd class="col-sm-8"><strong>@Model.PcName</strong></dd>
+
+            <dt class="col-sm-4">Usuário:</dt>
+            <dd class="col-sm-8">@Model.Usuario</dd>
         </dl>
+        <hr />
+        <p class="text-danger">Esta ação não poderá ser desfeita.</p>
     </div>
+
     <div class="modal-footer">
-        <form asp-action="Apagar" asp-route-id="@Model.Id" method="post">
-            @Html.AntiForgeryToken()
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-            <button type="submit" class="btn btn-danger">Confirmar Exclusão</button>
-        </form>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-danger">Confirmar Exclusão</button>
     </div>
-</div>
+</form>

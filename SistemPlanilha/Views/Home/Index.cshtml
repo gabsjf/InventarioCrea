@@ -1,8 +1,156 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model DashboardViewModel
+@{
+    ViewData["Title"] = "Painel Principal";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Bem vindo!</h1>
-    <p>página inicial do meu sistema</p>
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card shadow-sm text-center">
+            <div class="card-body">
+                <h5 class="card-title text-muted">Total de Itens no Inventário</h5>
+                <p class="card-text fs-1 fw-bold">@Model.TotalItensInventario</p>
+                <a asp-controller="Inventario" asp-action="Index" class="btn btn-sm btn-outline-primary">Ver todos</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm text-center text-warning border-warning">
+            <div class="card-body">
+                <h5 class="card-title text-muted">Manutenções Abertas</h5>
+                <p class="card-text fs-1 fw-bold">@Model.ManutencoesAbertas</p>
+                 <a asp-controller="Manutencao" asp-action="Index" class="btn btn-sm btn-outline-warning">Ver todas</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm text-center">
+            <div class="card-body">
+                <h5 class="card-title text-muted">Itens em Estoque</h5>
+                <p class="card-text fs-1 fw-bold">@Model.ItensEmEstoque</p>
+                <a asp-controller="Inventario" asp-action="Index" class="btn btn-sm btn-outline-primary">Ver todos</a>
+            </div>
+        </div>
+    </div>
 </div>
+
+<div class="row g-3">
+    <div class="col-lg-8">
+        <div class="card shadow-sm h-100">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="bi bi-clock-history"></i> Últimas Manutenções Registradas</h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Item (ID)</th>
+                                <th>Descrição</th>
+                                <th>Status</th>
+                                <th>Data</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.UltimasManutencoes.Any())
+                            {
+                                @foreach (var manutencao in Model.UltimasManutencoes)
+                                {
+                                    <tr>
+                                        <td>@manutencao.PcNameInventario (@manutencao.InventarioId)</td>
+                                        <td>
+                                            <span class="d-inline-block text-truncate" style="max-width: 200px;" title="@manutencao.Descricao">
+                                                @manutencao.Descricao
+                                            </span>
+                                        </td>
+                                        <td><span class="badge bg-secondary">@manutencao.StatusNome</span></td>
+                                        <td>@manutencao.DataCriacao</td>
+                                        <td class="text-end">
+                                            <a asp-controller="Manutencao" asp-action="Details" asp-route-id="@manutencao.Id" class="btn btn-sm btn-outline-primary">Ver Detalhes</a>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted">Nenhuma manutenção recente encontrada.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="bi bi-pie-chart-fill"></i> Inventário por Situação</h4>
+            </div>
+            <div class="card-body d-flex justify-content-center align-items-center">
+                <canvas id="graficoSituacao"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const ctx = document.getElementById('graficoSituacao');
+
+            // Pega os dados que o C# enviou para a View
+            const labels = @Html.Raw(Json.Serialize(Model.GraficoSituacaoLabels));
+            const data = @Html.Raw(Json.Serialize(Model.GraficoSituacaoData));
+
+            // Verifica se há dados para exibir o gráfico
+            if (data && data.length > 0) {
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Nº de Itens',
+                            data: data,
+                            backgroundColor: [
+                                'rgba(54, 162, 235, 0.7)',
+                                'rgba(255, 206, 86, 0.7)',
+                                'rgba(255, 99, 132, 0.7)',
+                                'rgba(75, 192, 192, 0.7)',
+                                'rgba(153, 102, 255, 0.7)'
+                            ],
+                            borderColor: [
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(153, 102, 255, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            }
+                        }
+                    }
+                });
+            } else {
+                // Mensagem caso não haja dados para o gráfico
+                const context = ctx.getContext('2d');
+                context.textAlign = 'center';
+                context.textBaseline = 'middle';
+                context.font = '16px Poppins';
+                context.fillText('Sem dados para exibir o gráfico', ctx.width / 2, ctx.height / 2);
+            }
+        });
+    </script>
+}

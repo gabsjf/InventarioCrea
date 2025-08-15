@@ -20,7 +20,7 @@ namespace SistemPlanilha.Helpers
 
         private static string GetFriendlyName(string value)
         {
-            // Aqui você pode personalizar o texto que aparece no dropdown
+            
             return value
                 .Replace("Win", "Windows ")
                 .Replace("Pro", "Pro")
@@ -28,7 +28,7 @@ namespace SistemPlanilha.Helpers
                 .Replace("Server", "Server")
                 .Replace("Office", "Office ")
                 .Replace("Plus", "Plus")
-                .Replace("Office20", "Office 20"); // para ficar Office 2022, 2021, etc
+                .Replace("Office20", "Office 20"); 
         }
     }
 }

@@ -2,8 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using SistemPlanilha.Models;
 
-// Caminho do arquivo: SistemPlanilha/Models/InventarioModel.cs
-// Este é o seu modelo correto, agora refletido no Canvas.
+
 namespace SistemPlanilha.Models
 {
     public class InventarioModel
@@ -38,7 +37,7 @@ namespace SistemPlanilha.Models
 
         // Propriedades de Navegação
         public int? SetorId { get; set; }
-        public Setor? Setor { get; set; }
+        public Setor? Setor { get; private set; }
 
         public int? TipoId { get; set; }
         public Tipo? Tipo { get; set; }
@@ -51,5 +50,15 @@ namespace SistemPlanilha.Models
 
         public int? OfficeId { get; set; }
         public Office? Office { get; set; }
+
+        // campo para controle de Delete lógico no banco de dados
+        public DateTime? DeletadoEm { get; set; }
+        public string? DeletadoPor { get; set; }
+
+        public string? CriadoPor { get; set; }
+        public DateTime? DataAtualizacao { get; set; }
+        public string? AtualizadoPor { get; set; }
+        public DateTime DataCriacao { get; set; }
+
     }
 }

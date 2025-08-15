@@ -4,6 +4,6 @@
     {
         public int Id { get; set; }
         public string? Nome { get; set; } 
-        public ICollection<RelatorioModel>? Relatorios { get; set; }
+        public ICollection<ManutencaoModel>? Relatorios { get; set; }
     }
 }
