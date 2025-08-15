@@ -25,9 +25,6 @@ O sistema foi desenvolvido seguindo os princípios de uma arquitetura em camadas
 * **Camada de Infraestrutura (`Data` e `Repositorio`):** Abstrai o acesso a dados utilizando o padrão Repositório e o Entity Framework Core para se comunicar com o banco de dados SQL Server.
 
 ## Screenshots
-
-*(Lembre-se de criar uma pasta "screenshots" no seu projeto e colocar os prints dentro dela, ajustando os caminhos abaixo se necessário)*
-
 #### Dashboard Principal
 ![Dashboard Principal](screenshots/dashboard.jpeg)
 
@@ -52,9 +49,4 @@ O sistema foi desenvolvido seguindo os princípios de uma arquitetura em camadas
 * **Ferramentas:** Visual Studio 2022, Git, GitHub, Swagger (OpenAPI)
 
 ## Contribuição
-
-Sugestões e melhorias são sempre bem-vindas. Para contribuir, por favor, abra uma issue para discutir o que você gostaria de mudar.
-
-## Licença
-
-Este projeto está licenciado sob a licença MIT.
+Obrigado ao meu Gestor João e aos colegas programadores que me auxiliaram em dúvidas no processo de criação do sistema.
