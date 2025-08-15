@@ -32,7 +32,7 @@ O sistema foi desenvolvido seguindo os princípios de uma arquitetura em camadas
 ![Listagem de Inventário](screenshots/inventario.jpeg)
 
 #### Formulário Criação (Modal)
-![Formulário de Criaçãp](screenshots/inventario.jpeg)
+![Formulário de Criaçãp](screenshots/adicionarItem.jpeg)
 
 #### Tela de Login
 ![Tela de Login](screenshots/login.jpeg)
