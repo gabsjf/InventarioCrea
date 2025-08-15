@@ -1,4 +1,4 @@
-# SistemPlanilha - Sistema de Inventário e Manutenção
+# InventCrea - Sistema de Inventário e Manutenção
 
 Este projeto consiste em um sistema web completo desenvolvido em ASP.NET Core MVC para gerenciar o inventário de equipamentos de TI e o fluxo de trabalho de manutenções associadas.
 
@@ -21,7 +21,7 @@ O sistema foi desenvolvido seguindo os princípios de uma arquitetura em camadas
 
 * **Camada de Apresentação (`Controllers` e `Views`):** Interface do usuário construída com ASP.NET Core MVC e Razor, utilizando ViewModels específicas para cada tela e ação (padrão Command/Query).
 * **Camada de Aplicação (`Application`):** Orquestra os casos de uso, recebendo dados dos controllers, chamando os serviços de domínio e repositórios, e retornando os resultados. É o "gerente" da aplicação.
-* **Camada de Domínio (`Domain/Services`):** Contém a lógica de negócio pura e as regras mais importantes do sistema (ex: validação de patrimônio duplicado), sem depender de outras camadas. É o "especialista".
+* **Camada de Domínio (`Domain/Services`):** Contém a lógica de negócio pura e as regras mais importantes do sistema (ex: validação de patrimônio duplicado), sem depender de outras camadas.
 * **Camada de Infraestrutura (`Data` e `Repositorio`):** Abstrai o acesso a dados utilizando o padrão Repositório e o Entity Framework Core para se comunicar com o banco de dados SQL Server.
 
 ## Screenshots
