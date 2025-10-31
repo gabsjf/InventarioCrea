@@ -1,4 +1,8 @@
 ﻿@model ExibirInventarioEditarFormViewModel
+@{
+    var triggerId = $"hist-trigger-{Model.Command.Id}";
+    var contentId = $"historico-popover-content-{Model.Command.Id}";
+}
 
 <form asp-controller="Inventario"
       asp-action="Editar"
@@ -41,12 +45,46 @@
             </div>
 
             <div class="col-md-6">
-                <label asp-for="Command.SetorId" class="form-label"></label>
+                <div>
+                    <label asp-for="Command.SetorId" class="form-label d-inline">Setor</label>
+                    <span id="@triggerId"
+                          class="ms-2"
+                          style="cursor: pointer;"
+                          data-bs-toggle="popover"
+                          data-bs-placement="right"
+                          title="Histórico de movimentações">
+                        <i class="bi bi-info-circle text-primary"></i>
+                    </span>
+                </div>
                 <select asp-for="Command.SetorId" class="form-select" asp-items="Model.Setores">
                     <option value="">Selecione...</option>
                 </select>
                 <span asp-validation-for="Command.SetorId" class="text-danger"></span>
+
+                @{
+                    string historicoHtml = "Nenhum histórico de movimentação.";
+                    if (Model.HistoricoDeSetores != null && Model.HistoricoDeSetores.Any())
+                    {
+                        var sb = new System.Text.StringBuilder();
+                        sb.Append("<table class='table table-sm table-bordered m-0'>");
+                        sb.Append("<thead><tr><th>Data</th><th>De</th><th>Para</th><th>Por</th></tr></thead>");
+                        sb.Append("<tbody>");
+                        foreach (var item in Model.HistoricoDeSetores)
+                        {
+                            var de = System.Net.WebUtility.HtmlEncode(item.SetorOrigem?.Nome ?? "N/A");
+                            var para = System.Net.WebUtility.HtmlEncode(item.SetorDestino?.Nome ?? "N/A");
+                            var por = System.Net.WebUtility.HtmlEncode(item.ResponsavelAlteracao);
+                            sb.Append($"<tr><td>{item.DataAlteracao:dd/MM/yy}</td><td>{de}</td><td>{para}</td><td>{por}</td></tr>");
+                        }
+                        sb.Append("</tbody></table>");
+                        historicoHtml = sb.ToString();
+                    }
+                }
+                <div id="@contentId" style="display: none;">
+                    @Html.Raw(historicoHtml)
+                </div>
             </div>
+
             <div class="col-md-6">
                 <label asp-for="Command.TipoId" class="form-label"></label>
                 <select asp-for="Command.TipoId" class="form-select" asp-items="Model.Tipos">
@@ -120,3 +158,55 @@
         <button type="submit" class="btn btn-primary">Salvar Alterações</button>
     </div>
 </form>
+
+<style>
+    .popover {
+        max-width: 600px;
+        width: auto;
+    }
+
+        .popover .table {
+            margin-bottom: 0;
+        }
+</style>
+
+<script>
+    (function () {
+        const triggerId = '@triggerId';
+        const contentId = '@contentId';
+
+        function initPopover() {
+            if (!window.bootstrap || !window.bootstrap.Popover) return;
+            const trigger = document.getElementById(triggerId);
+            const contentDiv = document.getElementById(contentId);
+            if (!trigger || !contentDiv) return;
+
+            const old = bootstrap.Popover.getInstance(trigger);
+            if (old) old.dispose();
+
+            new bootstrap.Popover(trigger, {
+                content: contentDiv.innerHTML,
+                html: true,             
+                allowHtml: true,
+                sanitize: false,        
+                trigger: 'hover focus',
+                container: 'body',
+                placement: 'right'
+            });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initPopover);
+        } else {
+            initPopover();
+        }
+
+        document.addEventListener('shown.bs.modal', function (e) {
+            const trigger = document.getElementById(triggerId);
+            if (!trigger) return;
+            if (e.target && e.target.contains(trigger)) {
+                initPopover();
+            }
+        });
+    })();
+</script>

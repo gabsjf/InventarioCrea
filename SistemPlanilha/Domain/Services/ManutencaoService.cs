@@ -15,6 +15,7 @@ namespace SistemPlanilha.Domain.Services
 
         public async Task ValidarInventarioParaNovaManutencao(int inventarioId)
         {
+           
             var inventario = await _inventarioRepositorio.ListarPorId(inventarioId);
 
             if (inventario == null)

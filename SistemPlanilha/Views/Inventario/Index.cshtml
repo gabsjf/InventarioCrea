@@ -2,14 +2,43 @@
 
 @{
     ViewData["Title"] = "Inventário de Itens";
+
+    // Parâmetros de rota para manter filtros e paginação
+    var routeParams = new Dictionary<string, string?>
+    {
+        { "termo", Model.TermoAtual },
+        { "filtroSO", Model.FiltroSO },
+        { "filtroOffice", Model.FiltroOffice },
+        { "setorId", Model.SetorId?.ToString() },
+        { "tipoId", Model.TipoId?.ToString() },
+        { "situacaoId", Model.SituacaoId?.ToString() },
+        { "winVerId", Model.WinVerId?.ToString() },
+        { "officeId", Model.OfficeId?.ToString() },
+        { "pageSize", Model.PageSize.ToString() },
+        { "page", Model.CurrentPage.ToString() }
+    };
 }
 
 <h1 class="display-4 mb-4">Listagem dos Itens</h1>
 
 <div class="text-center mb-3">
-    <a class="btn btn-success" asp-controller="Inventario" asp-action="Criar">
-        ➕ Adicionar novo item
-    </a>
+    @if (User.IsInRole("Administrador"))
+    {
+        <a class="btn btn-success" asp-controller="Inventario" asp-action="Criar">
+            <i class="bi bi-plus-circle"></i> Adicionar novo item
+        </a>
+    }
+    @if (User.IsInRole("Administrador") || User.IsInRole("Tecnico"))
+    {
+        <a class="btn btn-danger" asp-controller="Inventario" asp-action="ExportarPdf" asp-all-route-data="routeParams">
+            <i class="bi bi-file-earmark-pdf"></i> Exportar para PDF
+        </a>
+    }
+
+    <button id="toggle-fullscreen-table" class="btn btn-outline-secondary ms-2">
+        <i class="bi bi-arrows-fullscreen"></i>
+        <span class="btn-label">Tela Cheia</span>
+    </button>
 </div>
 
 <form asp-action="Index" method="get" class="card card-body mb-4" id="form-filtros">
@@ -62,23 +91,21 @@
         </div>
         <div class="col-md-3">
             <label for="pageSize" class="form-label">Itens por página</label>
-            <select id="pageSize" name="pageSize" class="form-select">
-                @{
-                    
-                    var tamanhos = new[] { 10, 50, 100 };
-                }
-                @foreach (var tamanho in tamanhos)
-                {
-                    if (Model.PageSize == tamanho)
-                    {
-                        <option value="@tamanho" selected>@tamanho</option>
-                    }
-                    else
-                    {
-                        <option value="@tamanho">@tamanho</option>
-                    }
-                }
+            <select id="pageSize" class="form-select" asp-for="PageSize">
+                <option value="10">10</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
             </select>
+        </div>
+        @* Opcional: filtro de situação se existir no ViewModel *@
+        @* <div class="col-md-3">
+        <label asp-for="SituacaoId" class="form-label">Situação</label>
+        <select asp-for="SituacaoId" class="form-select" asp-items="Model.Situacoes">
+        <option value="">Todas</option>
+        </select>
+        </div> *@
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-primary w-100">Filtrar</button>
         </div>
     </div>
 </form>
@@ -129,30 +156,30 @@
                         <td class="text-center">@(item.LicencaOffice ? "Sim" : "Não")</td>
                         <td>@item.Processador</td>
                         <td>@item.Ssd</td>
-                        <td class="text-truncate" style="max-width:150px" title="@item.Obs">
-                            @item.Obs
-                        </td>
+                        <td class="text-truncate" style="max-width:150px" title="@item.Obs">@item.Obs</td>
                         <td class="text-center">
-                            <div class="btn-group btn-group-sm" role="group" aria-label="Ações do Item">
+                            <div class="btn-group btn-group-sm" role="group">
+                                @if (User.IsInRole("Administrador"))
+                                {
+                                    <button class="btn btn-warning js-open-edit-modal"
+                                            data-url="@Url.Action("Editar", "Inventario", new { id = item.Id })"
+                                            title="Editar Item">
+                                        <i class="bi bi-pencil-fill"></i>
+                                    </button>
 
-                                <button class="btn btn-warning js-open-edit-modal"
-                                        data-url="@Url.Action("Editar", "Inventario", new { id = item.Id })"
-                                        title="Editar Item">
-                                    <i class="bi bi-pencil-fill"></i>
-                                </button>
+                                    <button class="btn btn-danger js-open-modal"
+                                            data-url="@Url.Action("Apagar", "Inventario", new { id = item.Id })"
+                                            title="Apagar Item">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </button>
+                                }
 
-                                <button class="btn btn-danger js-open-modal"
-                                        data-url="@Url.Action("Apagar", "Inventario", new { id = item.Id })"
-                                        title="Apagar Item">
-                                    <i class="bi bi-trash-fill"></i>
-                                </button>
-
-                                <a asp-controller="RelatorioModels"
-                                   asp-action="Create"
+                                <a asp-controller="Manutencao"
+                                   asp-action="Index"
                                    asp-route-inventarioId="@item.Id"
                                    class="btn btn-info"
-                                   title="Criar Relatório de Manutenção">
-                                    <i class="bi bi-clipboard-plus-fill"></i>
+                                   title="Ver Manutenções">
+                                    <i class="bi bi-clipboard-data-fill"></i>
                                 </a>
                             </div>
                         </td>
@@ -169,37 +196,20 @@
                     </td>
                 </tr>
             }
+        </tbody>
     </table>
 </div>
 
-
 @if (Model.TotalPages > 1)
 {
-   
-    var routeParams = new Dictionary<string, string>
-    {
-        { "termo", Model.TermoAtual },
-        { "filtroSO", Model.FiltroSO },
-        { "filtroOffice", Model.FiltroOffice },
-        { "setorId", Model.SetorId?.ToString() },
-        { "tipoId", Model.TipoId?.ToString() },
-        { "winVerId", Model.WinVerId?.ToString() },
-        { "officeId", Model.OfficeId?.ToString() },
-        { "pageSize", Model.PageSize.ToString() }
-    };
-
     <nav aria-label="Paginação de itens">
         <ul class="pagination justify-content-center">
-
-           
             <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
                 <a asp-action="Index" asp-all-route-data="routeParams" asp-route-page="@(Model.CurrentPage - 1)" class="page-link">
-                    &laquo;
-                    <span class="d-none d-sm-inline"> Anterior</span>
+                    &laquo;<span class="d-none d-sm-inline"> Anterior</span>
                 </a>
             </li>
 
-           
             @{
                 var pagesToShow = 5;
                 var half = pagesToShow / 2;
@@ -210,28 +220,23 @@
             @for (int i = start; i <= end; i++)
             {
                 <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
-                    
                     <a asp-action="Index" asp-all-route-data="routeParams" asp-route-page="@i" class="page-link">@i</a>
                 </li>
             }
 
-            
             <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
-                
                 <a asp-action="Index" asp-all-route-data="routeParams" asp-route-page="@(Model.CurrentPage + 1)" class="page-link">
-                    <span class="d-none d-sm-inline">Próximo </span>
-                    &raquo;
+                    <span class="d-none d-sm-inline">Próximo </span>&raquo;
                 </a>
             </li>
         </ul>
     </nav>
 }
 
-
 <div class="modal fade" id="modal-placeholder" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            @* injetado via AJAX *@
+            @* Conteúdo injetado via AJAX *@
         </div>
     </div>
 </div>
@@ -239,43 +244,134 @@
 @section Scripts {
     <script>
         $(function () {
-            var modal = $('#modal-placeholder');
+            // Tela Cheia com Fullscreen API e fallback em classe CSS
+            function setUi(full) {
+                const $btn = $('#toggle-fullscreen-table');
+                const $icon = $btn.find('i');
+                const $label = $btn.find('.btn-label');
+                if (full) {
+                    $icon.removeClass('bi-arrows-fullscreen').addClass('bi-arrows-angle-contract');
+                    $label.text('Sair da Tela Cheia');
+                } else {
+                    $icon.removeClass('bi-arrows-angle-contract').addClass('bi-arrows-fullscreen');
+                    $label.text('Tela Cheia');
+                }
+            }
+
+            $('#toggle-fullscreen-table').on('click', function () {
+                const el = document.querySelector('.table-responsive');
+                if (document.fullscreenElement) {
+                    document.exitFullscreen().catch(() => {
+                        $('body').removeClass('modo-tabela-fullscreen');
+                    }).finally(() => setUi(false));
+                } else if (el && el.requestFullscreen) {
+                    el.requestFullscreen()
+                        .then(() => setUi(true))
+                        .catch(() => {
+                            $('body').toggleClass('modo-tabela-fullscreen');
+                            setUi($('body').hasClass('modo-tabela-fullscreen'));
+                        });
+                } else {
+                    $('body').toggleClass('modo-tabela-fullscreen');
+                    setUi($('body').hasClass('modo-tabela-fullscreen'));
+                }
+            });
+
+            document.addEventListener('fullscreenchange', () => setUi(!!document.fullscreenElement));
+
+            // Modais com Bootstrap 5
+            const modalEl = document.getElementById('modal-placeholder');
+            const $modal = $('#modal-placeholder');
+
+            function getModalInstance() {
+                return bootstrap.Modal.getOrCreateInstance(modalEl);
+            }
 
             $('body').on('click', '.js-open-modal, .js-open-edit-modal', function (e) {
                 e.preventDefault();
-                var url = $(this).data('url');
-                modal.find('.modal-content')
-                    .html('<div class="p-5 text-center"><div class="spinner-border"></div></div>');
+                const url = $(this).data('url');
+                $modal.find('.modal-content').html('<div class="p-5 text-center"><div class="spinner-border"></div></div>');
+
                 $.get(url)
                     .done(function (html) {
-                        modal.find('.modal-content').html(html);
-                        modal.modal('show');
+                        $modal.find('.modal-content').html(html);
+
+                        const trigger = $modal.find('[data-bs-toggle="popover"]')[0];
+                        if (trigger) {
+                            new bootstrap.Popover(trigger, {
+                                container: 'body',
+                                customClass: 'custom-popover',
+                                html: true,
+                                title: 'Histórico de Movimentação',
+                                trigger: 'hover focus',
+                                content: function () {
+                                    const contentEl = document.getElementById('historico-popover-content');
+                                    return contentEl ? contentEl.innerHTML.trim() : 'Nenhum histórico.';
+                                }
+                            });
+                        }
+
+                        getModalInstance().show();
                     })
                     .fail(function () {
-                        modal.find('.modal-content').html(
-                            '<div class="p-3 text-danger">Erro ao carregar o modal.</div>'
-                        );
+                        $modal.find('.modal-content').html('<div class="p-3 text-danger">Erro ao carregar o modal.</div>');
+                        getModalInstance().show();
                     });
             });
 
-            modal.on('submit', 'form', function (e) {
+            $modal.on('submit', 'form', function (e) {
                 e.preventDefault();
-                var form = $(this);
-                $.post(form.attr('action'), form.serialize())
+                const $form = $(this);
+
+                $.post($form.attr('action'), $form.serialize())
                     .done(function (res) {
-                        if (res.success) {
-                            modal.modal('hide');
+                        if (res && res.success) {
+                            getModalInstance().hide();
                             location.reload();
                         } else {
-                            modal.find('.modal-content').html(res);
+                            $modal.find('.modal-content').html(res);
+                            const trigger = $modal.find('[data-bs-toggle="popover"]')[0];
+                            if (trigger) {
+                                new bootstrap.Popover(trigger, {
+                                    container: 'body',
+                                    customClass: 'custom-popover',
+                                    html: true,
+                                    title: 'Histórico de Movimentação',
+                                    trigger: 'hover focus',
+                                    content: function () {
+                                        const contentEl = document.getElementById('historico-popover-content');
+                                        return contentEl ? contentEl.innerHTML.trim() : 'Nenhum histórico.';
+                                    }
+                                });
+                            }
                         }
                     })
                     .fail(function () {
-                        modal.find('.modal-content').html(
-                            '<div class="p-3 text-danger">Erro na requisição.</div>'
-                        );
+                        $modal.find('.modal-content').html('<div class="p-3 text-danger">Erro na requisição.</div>');
                     });
             });
+
+            modalEl.addEventListener('hidden.bs.modal', function () {
+                const trigger = $modal.find('[data-bs-toggle="popover"]')[0];
+                if (trigger) {
+                    const pop = bootstrap.Popover.getInstance(trigger);
+                    if (pop) pop.dispose();
+                }
+                $modal.find('.modal-content').empty();
+            });
+
+            // Entrar automaticamente em tela cheia quando houver filtros
+            const params = new URLSearchParams(window.location.search);
+            const temBuscaOuFiltro =
+                (params.get('termo') ?? '').trim() !== '' ||
+                params.get('setorId') || params.get('tipoId') ||
+                params.get('winVerId') || params.get('officeId') ||
+                (params.get('filtroSO') && params.get('filtroSO') !== 'todos') ||
+                (params.get('filtroOffice') && params.get('filtroOffice') !== 'todos');
+
+            if (temBuscaOuFiltro && !$('body').hasClass('modo-tabela-fullscreen')) {
+                $('#toggle-fullscreen-table').trigger('click');
+            }
         });
     </script>
 }

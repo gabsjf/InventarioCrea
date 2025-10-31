@@ -36,7 +36,7 @@ namespace SistemPlanilha.Application
             return _httpContextAccessor.HttpContext?.User?.Identity?.Name ?? "gabriel.felix";
         }
 
-        // ------ CRUD + AUDITORIA ------
+      
 
         public async Task CriarManutencao(CriarManutencaoCommand command)
         {
@@ -62,7 +62,7 @@ namespace SistemPlanilha.Application
             _context.Add(manutencao);
             await _context.SaveChangesAsync();
 
-            // AUDITORIA: criação
+            
             await _auditService.RegistrarAuditoria(
                 TipoAcao.Criacao,
                 "Manutencoes",
@@ -81,10 +81,10 @@ namespace SistemPlanilha.Application
             var manutencao = await _context.Manutencoes.FindAsync(command.Id);
             if (manutencao != null)
             {
-                // snapshot ANTES
+                
                 var antes = Snapshot(manutencao);
 
-                // aplica alterações
+               
                 manutencao.InventarioId = command.InventarioId;
                 manutencao.Descricao = command.Descricao;
                 manutencao.StatusManutencaoId = command.StatusManutencaoId;
@@ -103,10 +103,10 @@ namespace SistemPlanilha.Application
                 _context.Update(manutencao);
                 await _context.SaveChangesAsync();
 
-                // snapshot DEPOIS
+                
                 var depois = Snapshot(manutencao);
 
-                // AUDITORIA: atualização (antes/depois)
+                
                 await _auditService.RegistrarAuditoria(
                     TipoAcao.Atualizacao,
                     "Manutencoes",
@@ -137,7 +137,7 @@ namespace SistemPlanilha.Application
                 _context.Update(manutencao);
                 await _context.SaveChangesAsync();
 
-                // AUDITORIA: deleção lógica
+                
                 await _auditService.RegistrarAuditoria(
                     TipoAcao.DelecaoLogica,
                     "Manutencoes",
@@ -152,7 +152,7 @@ namespace SistemPlanilha.Application
             }
         }
 
-        // ------ BUSCAS / VIEWMODELS ------
+        
 
         #region Métodos de Busca e Preparação
 

@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 namespace SistemPlanilha.Repositorio
 {
-    // A "casca" da classe que estava faltando
     public class InventarioRepositorio : IInventarioRepositorio
     {
         private readonly BancoContext _bancoContext;
@@ -19,6 +18,7 @@ namespace SistemPlanilha.Repositorio
 
         public IQueryable<InventarioModel> Buscar(string termo, string filtroSO, string filtroOffice, int? setorId, int? tipoId, int? situacaoId, int? winVerId, int? officeId)
         {
+            // Seu método de busca continua igual, sem alterações.
             IQueryable<InventarioModel> query = _bancoContext.Inventario
                 .Include(i => i.WinVer)
                 .Include(i => i.Office)
@@ -71,9 +71,44 @@ namespace SistemPlanilha.Repositorio
             return inventario;
         }
 
-        public async Task Atualizar(InventarioModel inventario)
+        // 👇 MÉTODO ATUALIZAR MODIFICADO
+        public async Task Atualizar(InventarioModel inventarioAtualizado, string responsavelPelaAlteracao)
         {
-            _bancoContext.Inventario.Update(inventario);
+            // 1. Buscamos o estado ATUAL do item no banco, ANTES de qualquer mudança.
+            var inventarioDB = await _bancoContext.Inventario
+                                                  .AsNoTracking()
+                                                  .FirstOrDefaultAsync(i => i.Id == inventarioAtualizado.Id);
+
+            if (inventarioDB == null)
+            {
+                // Se o item não existe, não fazemos nada. Poderia lançar uma exceção também.
+                return;
+            }
+
+            // 2. Comparamos o SetorId antigo (do banco) com o novo (que veio do formulário)
+            bool setorFoiAlterado = inventarioDB.SetorId.HasValue &&
+                                    inventarioAtualizado.SetorId.HasValue &&
+                                    inventarioDB.SetorId != inventarioAtualizado.SetorId;
+
+            if (setorFoiAlterado)
+            {
+                // 3. Se for diferente, criamos o registro de histórico
+                var registroHistorico = new HistoricoSetorModel
+                {
+                    InventarioId = inventarioDB.Id,
+                    SetorOrigemId = inventarioDB.SetorId.Value,
+                    SetorDestinoId = inventarioAtualizado.SetorId.Value,
+                    DataAlteracao = DateTime.UtcNow,
+                    ResponsavelAlteracao = responsavelPelaAlteracao
+                };
+                // 4. Adicionamos o novo registro de histórico ao contexto
+                _bancoContext.HistoricoSetores.Add(registroHistorico);
+            }
+
+            // 5. Atualizamos o item principal
+            _bancoContext.Inventario.Update(inventarioAtualizado);
+
+            // 6. Salvamos TUDO de uma vez (a mudança e o histórico, se houver)
             await _bancoContext.SaveChangesAsync();
         }
 

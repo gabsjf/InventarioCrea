@@ -1,26 +1,48 @@
 ﻿@using Microsoft.AspNetCore.Identity
-@inject SignInManager<IdentityUser> SignInManager
-@inject UserManager<IdentityUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
 
-<ul class="navbar-nav flex-row">
+@{
+    string primeiroNome = "";
+    if (SignInManager.IsSignedIn(User))
+    {
+        var u = await UserManager.GetUserAsync(User); // <- precisa de await
+        var nome = u?.NomeCompleto;
+
+        if (!string.IsNullOrWhiteSpace(nome))
+        {
+            primeiroNome = nome.Trim()
+                               .Split(' ', StringSplitOptions.RemoveEmptyEntries)[0];
+        }
+        else
+        {
+            // Fallback: usa o início do e‑mail (antes do @) ou o nome do usuário
+            var userName = u?.Email ?? UserManager.GetUserName(User);
+            primeiroNome = (userName ?? "").Split('@')[0];
+        }
+    }
+}
+
+<ul class="navbar-nav flex-row align-items-center">
     @if (SignInManager.IsSignedIn(User))
     {
         <li class="nav-item">
-            <span class="nav-link">Olá, @User.Identity?.Name!</span>
+            <span class="navbar-text me-3">
+                <i class="bi bi-person-circle"></i> Olá, @primeiroNome!
+            </span>
         </li>
         <li class="nav-item">
-            <form class="form-inline" asp-controller="Conta" asp-action="Sair" method="post">
-                <button type="submit" class="nav-link btn btn-link">Sair</button>
+            <form asp-controller="Conta" asp-action="Sair" method="post">
+                <button type="submit" class="btn btn-outline-warning btn-sm">
+                    <i class="bi bi-box-arrow-right"></i> Sair
+                </button>
             </form>
         </li>
     }
     else
     {
-        <li class="nav-item">
-            <a class="nav-link" asp-controller="Conta" asp-action="Registrar">Registrar</a>
-        </li>
         <li class="nav-item ms-2">
-            <a class="nav-link" asp-controller="Conta" asp-action="Login">Login</a>
+            <a class="btn btn-primary btn-sm" asp-controller="Conta" asp-action="Login">Entrar</a>
         </li>
     }
 </ul>

@@ -1,0 +1,25 @@
+﻿@model CriarUsuarioViewModel
+
+<h1>Criar Novo Usuário</h1>
+<form method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div class="mb-3">
+        <label asp-for="NomeCompleto"></label>
+        <input asp-for="NomeCompleto" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="Email"></label>
+        <input asp-for="Email" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="Senha"></label>
+        <input asp-for="Senha" type="password" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="FuncaoId"></label>
+        <select asp-for="FuncaoId" asp-items="ViewBag.Funcoes" class="form-select">
+            <option value="">Selecione uma função</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Salvar</button>
+</form>

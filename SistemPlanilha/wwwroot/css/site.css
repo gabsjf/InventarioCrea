@@ -1,22 +1,322 @@
+﻿/* Base */
 html {
-  font-size: 14px;
+    font-size: 14px;
+    position: relative;
+    min-height: 100%;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+    html {
+        font-size: 16px;
+    }
 }
 
 body {
-  margin-bottom: 60px;
+    margin-bottom: 60px;
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+/* Popover */
+.custom-popover {
+    max-width: 500px !important;
+    z-index: 9999 !important;
+}
+
+/* Tema escuro principal */
+body.dark-theme {
+    background-color: #121212;
+    color: #e0e0e0;
+}
+
+    body.dark-theme .btn-warning {
+        background-color: transparent;
+        border-color: #ffc107;
+        color: #ffc107;
+    }
+
+        body.dark-theme .btn-warning:hover {
+            background-color: #ffc107;
+            color: #000;
+        }
+
+    body.dark-theme .btn-danger {
+        background-color: transparent;
+        border-color: #dc3545;
+        color: #dc3545;
+    }
+
+        body.dark-theme .btn-danger:hover {
+            background-color: #dc3545;
+            color: #fff;
+        }
+
+    body.dark-theme .btn-info {
+        background-color: transparent;
+        border-color: #0dcaf0;
+        color: #0dcaf0;
+    }
+
+        body.dark-theme .btn-info:hover {
+            background-color: #0dcaf0;
+            color: #fff;
+        }
+
+    body.dark-theme .btn-primary {
+        background-color: transparent;
+        border-color: #0d6efd;
+        color: #0d6efd;
+    }
+
+        body.dark-theme .btn-primary:hover {
+            background-color: #0d6efd;
+            color: #fff;
+        }
+
+    body.dark-theme #page-header {
+        background-color: #1f1f1f;
+        border-bottom: 1px solid #343a40;
+    }
+
+        body.dark-theme #page-header h2 {
+            color: #e0e0e0;
+        }
+
+    body.dark-theme .theme-switch-wrapper .bi-moon-fill {
+        color: #FDB913;
+    }
+
+body:not(.dark-theme) .theme-switch-wrapper .bi-sun-fill {
+    color: #FDB913;
+}
+
+body:not(.dark-theme) .theme-switch-wrapper .bi-moon-fill {
+    color: #ccc;
+}
+
+body.dark-theme .dataTables_length label,
+body.dark-theme .dataTables_filter label,
+body.dark-theme .dataTables_info {
+    color: #e0e0e0 !important;
+}
+
+body.dark-theme .form-control,
+body.dark-theme .form-select {
+    background-color: #2c2c2c;
+    color: #e0e0e0;
+    border-color: #444;
+}
+
+    body.dark-theme .form-control:focus,
+    body.dark-theme .form-select:focus {
+        background-color: #3a3a3a;
+        color: #e0e0e0;
+        border-color: #FDB913;
+        box-shadow: 0 0 0 0.25rem rgba(253, 185, 19, 0.25);
+    }
+
+body.dark-theme .table {
+    border-color: #454d55;
+}
+
+    body.dark-theme .table thead th {
+        color: #ffffff;
+        background-color: #343a40;
+        border-bottom: 2px solid #454d55;
+    }
+
+    body.dark-theme .table > tbody > tr > td {
+        background-color: #212529;
+        color: #e0e0e0;
+        border-color: #343a40;
+    }
+
+    body.dark-theme .table a {
+        color: #a9c6ff;
+        text-decoration: none;
+    }
+
+        body.dark-theme .table a:hover {
+            color: #dce7ff;
+            text-decoration: underline;
+        }
+
+body.dark-theme .table-hover > tbody > tr:hover > * {
+    --bs-table-accent-bg: #343a40;
+    color: #fff;
+}
+
+    body.dark-theme .table-hover > tbody > tr:hover > * a {
+        color: #fff;
+    }
+
+body.dark-theme .table-striped > tbody > tr:nth-of-type(odd) > * {
+    --bs-table-accent-bg: rgba(255, 255, 255, 0.05);
+    color: #e0e0e0;
+}
+
+body.dark-theme .card,
+body.dark-theme .bg-light,
+body.dark-theme .bg-white {
+    background-color: #1f1f1f !important;
+    color: #e0e0e0;
+    border: 1px solid #343a40;
+}
+
+body.dark-theme .card-header,
+body.dark-theme .card-title,
+body.dark-theme .card-body h1,
+body.dark-theme .card-body h2,
+body.dark-theme .card-body h3 {
+    color: #ffffff;
+}
+
+body.dark-theme .card label {
+    color: #ced4da;
+}
+
+body.dark-theme .modal-content {
+    background-color: #2c2c2c;
+    color: #e0e0e0;
+    border: 1px solid #555;
+}
+
+body.dark-theme .modal-header {
+    border-bottom: 1px solid #444;
+}
+
+    body.dark-theme .modal-header .modal-title {
+        color: #ffffff;
+    }
+
+body.dark-theme .modal-footer {
+    border-top: 1px solid #444;
+}
+
+body.dark-theme .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+body.dark-theme .list-group-item {
+    background-color: #1f1f1f;
+    border: 1px solid #343a40;
+    color: #e0e0e0;
+}
+
+    body.dark-theme .list-group-item strong {
+        color: #ffffff;
+    }
+
+body.dark-theme .pagination {
+    background-color: transparent;
+}
+
+    body.dark-theme .pagination .page-link {
+        background-color: #2c2c2c;
+        color: #e0e0e0;
+        border: 1px solid #444;
+    }
+
+    body.dark-theme .pagination .page-item.active .page-link {
+        background-color: #343a40;
+        color: #ffffff;
+        border-color: #555;
+    }
+
+    body.dark-theme .pagination .page-item.disabled .page-link {
+        background-color: transparent;
+        color: #6c757d;
+        border-color: #444;
+    }
+
+    body.dark-theme .pagination .page-link:hover,
+    body.dark-theme .pagination .page-link:focus {
+        background-color: #343a40;
+        color: #ffffff;
+        border-color: #555;
+    }
+
+.table-responsive {
+    margin-bottom: 1rem;
+}
+
+/* Barras de rolagem no tema escuro */
+body.dark-theme {
+    scrollbar-color: #555 #2c2c2c;
+    scrollbar-width: thin;
+}
+
+    body.dark-theme .table-responsive::-webkit-scrollbar {
+        height: 8px;
+    }
+
+    body.dark-theme .table-responsive::-webkit-scrollbar-track {
+        background: #2c2c2c;
+    }
+
+    body.dark-theme .table-responsive::-webkit-scrollbar-thumb {
+        background-color: #555;
+        border-radius: 4px;
+        border: 2px solid #2c2c2c;
+    }
+
+        body.dark-theme .table-responsive::-webkit-scrollbar-thumb:hover {
+            background-color: #666;
+        }
+
+/* =========================
+   MODO TELA CHEIA CONSOLIDADO
+   ========================= */
+body.modo-tabela-fullscreen {
+    overflow: hidden;
+}
+
+    /* Esconder elementos do layout */
+    body.modo-tabela-fullscreen #page-header,
+    body.modo-tabela-fullscreen #sidebar,
+    body.modo-tabela-fullscreen .breadcrumb,
+    body.modo-tabela-fullscreen h1.display-4,
+    body.modo-tabela-fullscreen #form-filtros,
+    body.modo-tabela-fullscreen nav[aria-label="Paginação de itens"] {
+        display: none !important;
+    }
+
+    /* Manter visível a barra de ações apenas com o botão */
+    body.modo-tabela-fullscreen .text-center.mb-3 {
+        display: block !important;
+    }
+
+        body.modo-tabela-fullscreen .text-center.mb-3 > :not(#toggle-fullscreen-table) {
+            display: none !important;
+        }
+
+    /* A tabela ocupa a viewport, acima de sidebar e header */
+    body.modo-tabela-fullscreen .table-responsive {
+        position: fixed !important;
+        inset: 0 !important;
+        z-index: 1100 !important; /* sidebar é 1000 */
+        padding: 12px !important;
+        background: var(--bs-body-bg, #fff) !important;
+        overflow: auto !important;
+        border: 0 !important;
+    }
+
+    /* Botão flutuante para sair do modo */
+    body.modo-tabela-fullscreen #toggle-fullscreen-table {
+        position: fixed !important;
+        top: 12px !important;
+        right: 12px !important;
+        z-index: 1110 !important;
+    }
+
+    /* Ajustes visuais */
+    body.modo-tabela-fullscreen .table {
+        font-size: .95rem;
+    }
+
+/* Fundo correto no tema escuro */
+body.dark-theme.modo-tabela-fullscreen .table-responsive {
+    background: #121212 !important;
 }

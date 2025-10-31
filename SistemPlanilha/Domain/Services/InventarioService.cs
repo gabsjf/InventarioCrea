@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace SistemPlanilha.Domain.Services
 {
-    // Exceção personalizada para patrimônios duplicados
+    
     public class PatrimonioDuplicadoException : Exception
     {
         public PatrimonioDuplicadoException(string message) : base(message) { }
@@ -45,11 +45,11 @@ namespace SistemPlanilha.Domain.Services
                 );
         }
 
-        // Método privado para reaproveitar a consulta
+        
         private async Task<bool> PatrimonioJaExiste(int patrimonio, int? ignorarItemId = null)
         {
 
-            // Criar uma classe para a busca dos filtros e melhorar a leitura dessa parte.
+          
             var query = _inventarioRepositorio.Buscar(null, TODOS, TODOS, null, null, null, null, null);
 
             if (ignorarItemId.HasValue)

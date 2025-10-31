@@ -1,4 +1,6 @@
 ﻿@model DashboardViewModel
+@using System.Text.Json
+
 @{
     ViewData["Title"] = "Painel Principal";
 }
@@ -100,56 +102,54 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+    @{
+        var labelsJson = JsonSerializer.Serialize(Model.GraficoSituacaoLabels);
+        var dataJson = JsonSerializer.Serialize(Model.GraficoSituacaoData);
+        var colorsJson = JsonSerializer.Serialize(Model.GraficoSituacaoColors);
+    }
+
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const ctx = document.getElementById('graficoSituacao');
+            const canvas = document.getElementById('graficoSituacao');
 
-            // Pega os dados que o C# enviou para a View
-            const labels = @Html.Raw(Json.Serialize(Model.GraficoSituacaoLabels));
-            const data = @Html.Raw(Json.Serialize(Model.GraficoSituacaoData));
+            // Arrays vindos do servidor (um-para-um com as fatias)
+            const labels = @Html.Raw(labelsJson);
+            const data = @Html.Raw(dataJson);
+            const colors = @Html.Raw(colorsJson);
 
-            // Verifica se há dados para exibir o gráfico
-            if (data && data.length > 0) {
-                new Chart(ctx, {
+            if (Array.isArray(data) && data.length > 0) {
+                // Garantia extra: se por algum motivo o array de cores vier menor,
+                // repetimos de forma segura para evitar falta de cor
+                const safeColors = data.map((_, i) => colors[i % colors.length]);
+
+                new Chart(canvas, {
                     type: 'doughnut',
                     data: {
                         labels: labels,
                         datasets: [{
                             label: 'Nº de Itens',
                             data: data,
-                            backgroundColor: [
-                                'rgba(54, 162, 235, 0.7)',
-                                'rgba(255, 206, 86, 0.7)',
-                                'rgba(255, 99, 132, 0.7)',
-                                'rgba(75, 192, 192, 0.7)',
-                                'rgba(153, 102, 255, 0.7)'
-                            ],
-                            borderColor: [
-                                'rgba(54, 162, 235, 1)',
-                                'rgba(255, 206, 86, 1)',
-                                'rgba(255, 99, 132, 1)',
-                                'rgba(75, 192, 192, 1)',
-                                'rgba(153, 102, 255, 1)'
-                            ],
+                            backgroundColor: safeColors,
+                            // borda branca para destacar cada fatia (evita ter que gerar outro array)
+                            borderColor: Array(data.length).fill('#ffffff'),
                             borderWidth: 1
                         }]
                     },
                     options: {
                         responsive: true,
                         plugins: {
-                            legend: {
-                                position: 'top',
-                            }
+                            legend: { position: 'top' }
                         }
                     }
                 });
             } else {
-                // Mensagem caso não haja dados para o gráfico
-                const context = ctx.getContext('2d');
-                context.textAlign = 'center';
-                context.textBaseline = 'middle';
-                context.font = '16px Poppins';
-                context.fillText('Sem dados para exibir o gráfico', ctx.width / 2, ctx.height / 2);
+                // Sem dados: mostra texto no centro do canvas
+                const ctx = canvas.getContext('2d');
+                const rect = canvas.getBoundingClientRect();
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.font = '16px Poppins, sans-serif';
+                ctx.fillText('Sem dados para exibir o gráfico', rect.width / 2, rect.height / 2);
             }
         });
     </script>

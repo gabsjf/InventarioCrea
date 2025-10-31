@@ -1,0 +1,68 @@
+﻿@model InventarioIndexViewModel
+@{
+    Layout = null; // MUITO IMPORTANTE: PDFs não podem ter o layout do site
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Relatório de Inventário</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 4px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        h1 {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Relatório de Inventário - @DateTime.Now.ToString("dd/MM/yyyy")</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome do PC</th>
+                <th>Usuário</th>
+                <th>Patrimônio</th>
+                <th>Setor</th>
+                <th>Situação</th>
+                <th>Modelo</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Inventarios)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.PcName</td>
+                    <td>@item.Usuario</td>
+                    <td>@item.Patrimonio</td>
+                    <td>@item.SetorNome</td>
+                    <td>@item.SituacaoNome</td>
+                    <td>@item.Modelo</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</body>
+</html>

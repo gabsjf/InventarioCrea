@@ -1,0 +1,70 @@
+﻿@model IEnumerable<SistemPlanilha.ViewModels.Manutencao.RelatorioParaListagemViewModel>
+@{
+    Layout = null; // PDFs não podem ter o layout do site
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Relatório de Manutenções</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 4px;
+            text-align: left;
+            word-wrap: break-word;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Relatório de Manutenções - @DateTime.Now.ToString("dd/MM/yyyy")</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Item (PC)</th>
+                <th>Descrição</th>
+                <th>Status</th>
+                <th>Técnico</th>
+                <th>Data Criação</th>
+                <th>Ações Realizadas</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.PcNameInventario (ID: @item.InventarioId)</td>
+                    <td>@item.Descricao</td>
+                    <td>@item.StatusNome</td>
+                    <td>@item.ResponsavelTecnico</td>
+                    <td>@item.DataCriacao</td>
+                    <td>@item.AcoesRealizadas</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</body>
+</html>

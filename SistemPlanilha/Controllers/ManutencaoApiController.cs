@@ -4,7 +4,7 @@ using SistemPlanilha.ViewModels.Manutencao;
 using System.Threading.Tasks;
 
 [ApiController]
-[Route("api/Manutencao")] // Rota já estava correta
+[Route("api/Manutencao")] 
 public class ManutencaoApiController : ControllerBase
 {
     private readonly IManutencaoApp _manutencaoApp;
@@ -15,7 +15,7 @@ public class ManutencaoApiController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetManutencao(int id) // Nome do método opcionalmente renomeado
+    public async Task<IActionResult> GetManutencao(int id) 
     {
         var manutencao = await _manutencaoApp.ObterDetalhes(id);
         if (manutencao == null) return NotFound();

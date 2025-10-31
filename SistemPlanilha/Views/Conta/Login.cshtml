@@ -30,15 +30,13 @@
 
                         <div class="mb-3 form-check">
                             <input asp-for="LembrarMe" class="form-check-input" />
-                            <label asp-for="LembrarMe" class="form-check-label"></label>
+                            <label class="form-check-label" for="LembrarMe">
+                                Lembrar da conta
+                            </label>
                         </div>
 
                         <div class="d-grid">
                             <button type="submit" class="btn btn-primary btn-lg">Entrar</button>
-                        </div>
-
-                        <div class="text-center mt-3">
-                            <a asp-action="Registrar">Não tem uma conta? Registre-se</a>
                         </div>
                     </form>
                 </div>

@@ -1,0 +1,66 @@
+﻿@model UsuarioDetalhesViewModel
+
+@{
+    ViewData["Title"] = "Detalhes do Usuário";
+}
+
+<h1 class="display-4">Detalhes do Usuário</h1>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h5 class="card-title">@Model.NomeCompleto</h5>
+        <h6 class="card-subtitle mb-2 text-muted">@Model.Email</h6>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h4><i class="bi bi-clock-history"></i> Histórico de Atividades</h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Ação</th>
+                        <th>Tabela</th>
+                        <th>Item Afetado</th>
+                        <th>ID do Inventário</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var log in Model.LogsDeAtividade)
+                    {
+                        <tr>
+                            <td>@log.Timestamp.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss")</td>
+                            <td>
+                                @if (log.Acao == TipoAcao.Criacao)
+                                {
+                                    <span class="badge bg-success">Criação</span>
+                                }
+                                else if (log.Acao == TipoAcao.Atualizacao)
+                                {
+                                    <span class="badge bg-warning text-dark">Atualização</span>
+                                }
+                                else if (log.Acao == TipoAcao.DelecaoLogica)
+                                {
+                                    <span class="badge bg-danger">Deleção</span>
+                                }
+                            </td>
+                            <td>@log.NomeTabela</td>
+                            <td class="text-truncate" style="max-width: 250px;" title="@log.DescricaoRegistro">
+                                @log.DescricaoRegistro
+                            </td>
+                            <td>@log.InventarioId</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="mt-3">
+    <a asp-action="Index" class="btn btn-secondary">Voltar para a Lista</a>
+</div>

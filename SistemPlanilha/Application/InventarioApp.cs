@@ -17,27 +17,27 @@ namespace SistemPlanilha.Application
     {
         private readonly IInventarioRepositorio _inventarioRepositorio;
         private readonly IInventarioService _inventarioService;
-        private readonly IAuditService _auditService; // <-- Injetado
+        private readonly IAuditService _auditService;
         private readonly BancoContext _bancoContext;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         public InventarioApp(
             IInventarioRepositorio inventarioRepositorio,
             IInventarioService inventarioService,
-            IAuditService auditService, // <-- Injetado
+            IAuditService auditService,
             BancoContext bancoContext,
             IHttpContextAccessor httpContextAccessor)
         {
             _inventarioRepositorio = inventarioRepositorio;
             _inventarioService = inventarioService;
-            _auditService = auditService; // <-- Atribuído
+            _auditService = auditService;
             _bancoContext = bancoContext;
             _httpContextAccessor = httpContextAccessor;
         }
 
         private string ObterUsuarioLogado()
         {
-            return _httpContextAccessor.HttpContext?.User?.Identity?.Name ?? "gabriel.felix";
+            return _httpContextAccessor.HttpContext?.User?.Identity?.Name ?? "Sistema"; // "Sistema" como fallback
         }
 
         public async Task AdicionarInventario(CriarInventarioCommand command)
@@ -69,7 +69,6 @@ namespace SistemPlanilha.Application
 
             await _inventarioRepositorio.Adicionar(novoInventario);
 
-            // REGISTRA A AUDITORIA
             await _auditService.RegistrarAuditoria(
                 TipoAcao.Criacao, "Inventarios", novoInventario.Id, ObterUsuarioLogado(), command);
         }
@@ -81,6 +80,7 @@ namespace SistemPlanilha.Application
             var existente = await _inventarioRepositorio.ListarPorId(command.Id);
             if (existente == null) { throw new Exception("Item não encontrado."); }
 
+            // Mapeamento dos campos
             existente.PcName = command.PcName; existente.Serial = command.Serial; existente.Patrimonio = command.Patrimonio;
             existente.Usuario = command.Usuario; existente.Modelo = command.Modelo; existente.PrevisaoDevolucao = command.PrevisaoDevolucao;
             existente.Responsavel = command.Responsavel; existente.Processador = command.Processador; existente.Ssd = command.Ssd;
@@ -90,9 +90,10 @@ namespace SistemPlanilha.Application
             existente.DataAtualizacao = DateTime.UtcNow;
             existente.AtualizadoPor = ObterUsuarioLogado();
 
-            await _inventarioRepositorio.Atualizar(existente);
+            // 👇 ALTERAÇÃO AQUI: Passando o usuário logado para o repositório
+            // O repositório agora usará este nome para criar o registro de histórico de setor.
+            await _inventarioRepositorio.Atualizar(existente, ObterUsuarioLogado());
 
-            // REGISTRA A AUDITORIA
             await _auditService.RegistrarAuditoria(
                 TipoAcao.Atualizacao, "Inventarios", existente.Id, ObterUsuarioLogado(), command);
         }
@@ -103,11 +104,12 @@ namespace SistemPlanilha.Application
             if (itemParaApagar != null)
             {
                 var usuario = ObterUsuarioLogado();
-                itemParaApagar.DeletadoEm = DateTime.UtcNow;
-                itemParaApagar.DeletadoPor = usuario;
-                await _inventarioRepositorio.Atualizar(itemParaApagar);
 
-                // REGISTRA A AUDITORIA
+                // 👇 ALTERAÇÃO AQUI: Chamando o método Apagar() correto do repositório
+                // Em vez de chamar Atualizar(), usamos o método Apagar() que já está preparado para isso.
+                // Isso também corrige o erro de compilação que aconteceria aqui.
+                await _inventarioRepositorio.Apagar(id, usuario);
+
                 await _auditService.RegistrarAuditoria(
                     TipoAcao.DelecaoLogica, "Inventarios", id, usuario);
             }
@@ -192,8 +194,26 @@ namespace SistemPlanilha.Application
         {
             var inventario = await _inventarioRepositorio.ListarPorId(id);
             if (inventario == null) return null;
-            var relatorios = await _bancoContext.Manutencoes.Where(r => r.InventarioId == id).Include(r => r.StatusManutencao).ToListAsync();
-            return new InventarioDetalhesViewModel { Inventario = inventario, Relatorios = relatorios };
+
+            var relatorios = await _bancoContext.Manutencoes
+                .Where(r => r.InventarioId == id)
+                .Include(r => r.StatusManutencao)
+                .ToListAsync();
+
+            // 👇 ADICIONE ESTA CONSULTA PARA O HISTÓRICO
+            var historico = await _bancoContext.HistoricoSetores
+                .Where(h => h.InventarioId == id)
+                .Include(h => h.SetorOrigem)      // Inclui o nome do setor de origem
+                .Include(h => h.SetorDestino)     // Inclui o nome do setor de destino
+                .OrderByDescending(h => h.DataAlteracao) // Mostra os mais recentes primeiro
+                .ToListAsync();
+
+            return new InventarioDetalhesViewModel
+            {
+                Inventario = inventario,
+                Relatorios = relatorios,
+                HistoricoDeSetores = historico // Passa o histórico para a ViewModel
+            };
         }
 
         public async Task<ExibirInventarioFormViewModel> PrepararViewModelParaCriar()
@@ -207,6 +227,16 @@ namespace SistemPlanilha.Application
         {
             var item = await _inventarioRepositorio.ListarPorId(id);
             if (item == null) return null;
+
+            // Busca o histórico do item no banco
+            var historico = await _bancoContext.HistoricoSetores
+                .Where(h => h.InventarioId == id)
+                .Include(h => h.SetorOrigem)
+                .Include(h => h.SetorDestino)
+                .OrderByDescending(h => h.DataAlteracao)
+                .ToListAsync();
+
+            // Mapeia os dados do item para o Command
             var command = new EditarInventarioCommand
             {
                 Id = item.Id,
@@ -228,8 +258,18 @@ namespace SistemPlanilha.Application
                 WinVerId = item.WinVerId,
                 OfficeId = item.OfficeId
             };
-            var viewModelParaExibir = new ExibirInventarioEditarFormViewModel { Command = command };
+
+            // Cria a ViewModel final que será enviada para a View
+            var viewModelParaExibir = new ExibirInventarioEditarFormViewModel
+            {
+                Command = command,
+                HistoricoDeSetores = historico
+            };
+
+            // Popula as listas de dropdowns
             await PopularSelectListsParaEdicao(viewModelParaExibir);
+
+            // Retorna a ViewModel completa para a página
             return viewModelParaExibir;
         }
 

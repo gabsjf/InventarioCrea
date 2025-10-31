@@ -1,0 +1,20 @@
+﻿@model EditarUsuarioViewModel
+
+<h1>Editar Usuário</h1>
+<form method="post">
+    <input type="hidden" asp-for="Id" />
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div class="mb-3">
+        <label asp-for="NomeCompleto"></label>
+        <input asp-for="NomeCompleto" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="Email"></label>
+        <input asp-for="Email" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="Funcao"></label>
+        <select asp-for="Funcao" asp-items="Model.TodasAsFuncoes" class="form-select"></select>
+    </div>
+    <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+</form>

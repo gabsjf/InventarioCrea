@@ -7,5 +7,7 @@ namespace SistemPlanilha.ViewModels.Inventario
     {
         public InventarioModel Inventario { get; set; }
         public List<ManutencaoModel> Relatorios { get; set; }
+
+        public List<HistoricoSetorModel> HistoricoDeSetores { get; set; }
     }
 }

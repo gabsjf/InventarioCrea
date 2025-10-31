@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using SistemPlanilha.Models;
 
 namespace SistemPlanilha.ViewModels.Inventario
 {
@@ -12,6 +13,7 @@ namespace SistemPlanilha.ViewModels.Inventario
         public SelectList? WinVers { get; set; }
         public SelectList? Offices { get; set; }
 
+        public List<HistoricoSetorModel> HistoricoDeSetores { get; set; }
         public ExibirInventarioEditarFormViewModel()
         {
             Command = new EditarInventarioCommand();
